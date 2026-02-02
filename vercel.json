@@ -3,6 +3,14 @@
   "name": "matiks-monitor",
   "builds": [
     {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "output/dashboard.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "api/index.py",
       "use": "@vercel/python"
     }
@@ -11,6 +19,18 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.py"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/output/dashboard.html"
+    },
+    {
+      "src": "/dashboard.html",
+      "dest": "/output/dashboard.html"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",
