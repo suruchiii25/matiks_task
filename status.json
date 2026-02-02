@@ -1,13 +1,14 @@
 {
   "system_status": "automated",
-  "last_update": "2026-02-03T04:55:00Z",
-  "next_update": "2026-02-03T05:55:00Z",
+  "last_update": "2026-02-02T23:31:20.637011+00:00",
+  "next_update": "2026-02-03T00:31:20.637011+00:00",
   "update_frequency": "hourly",
   "automation_method": "GitHub Actions",
+  "total_rows": 117,
   "data_sources": [
     "Reddit API",
     "Twitter API (demo mode)",
-    "LinkedIn API (demo mode)", 
+    "LinkedIn API (demo mode)",
     "Google Play Store RSS",
     "Apple App Store RSS"
   ],
