@@ -1,0 +1,83 @@
+name: Update Social Media Data
+
+on:
+  schedule:
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub UI
+  push:
+    branches: [ master ]
+    paths:
+      - 'aggregator.py'
+      - 'social/**'
+      - 'appstore/**'
+      - 'sentiment.py'
+      - 'requirements.txt'
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run data aggregation
+      run: |
+        python aggregator.py --once --limit 50
+      env:
+        TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+        LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+        REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+        REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+        
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "Data updated - changes detected"
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "No new data - skipping deployment"
+        fi
+        
+    - name: Commit and push changes
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add output/
+        git add last_run.json
+        git commit -m "🤖 Auto-update social media data $(date '+%Y-%m-%d %H:%M:%S UTC')"
+        git push
+        
+    - name: Update deployment status
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        echo "✅ Data updated and deployed successfully"
+        echo "📊 Dashboard will refresh automatically at https://matikstaskaigen.vercel.app/"
+      else
+        echo "ℹ️ No new data found - next update in 1 hour"

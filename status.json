@@ -1,0 +1,23 @@
+{
+  "system_status": "automated",
+  "last_update": "2026-02-03T04:55:00Z",
+  "next_update": "2026-02-03T05:55:00Z",
+  "update_frequency": "hourly",
+  "automation_method": "GitHub Actions",
+  "data_sources": [
+    "Reddit API",
+    "Twitter API (demo mode)",
+    "LinkedIn API (demo mode)", 
+    "Google Play Store RSS",
+    "Apple App Store RSS"
+  ],
+  "deployment": {
+    "platform": "Vercel",
+    "url": "https://matikstaskaigen.vercel.app/",
+    "auto_deploy": true
+  },
+  "monitoring": {
+    "health_checks": "every 6 hours",
+    "error_alerts": "GitHub Actions notifications"
+  }
+}

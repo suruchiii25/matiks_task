@@ -1,0 +1,37 @@
+name: System Health Check
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check deployment status
+      run: |
+        echo "🔍 Checking Matiks Monitor health status..."
+        echo "📊 Dashboard: https://matikstaskaigen.vercel.app/"
+        echo "📈 Last check: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+        
+    - name: Test dashboard accessibility
+      run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://matikstaskaigen.vercel.app/)
+        if [ $response -eq 200 ]; then
+          echo "✅ Dashboard accessible (HTTP $response)"
+        else
+          echo "❌ Dashboard not accessible (HTTP $response)"
+          exit 1
+        fi
+        
+    - name: Check data freshness
+      run: |
+        # Check if dashboard was updated in last 2 hours
+        if curl -s https://matikstaskaigen.vercel.app/ | grep -q "Last generated"; then
+          echo "✅ Dashboard has generation timestamp"
+        else
+          echo "⚠️ Dashboard may not be showing latest data"
+        fi

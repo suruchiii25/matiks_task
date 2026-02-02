@@ -835,8 +835,16 @@ def main() -> int:
                 'text': ''
             })
 
-            all_df.to_csv(combined_csv, index=False, encoding="utf-8")
-            render_dashboard_html(all_df, dashboard_html, title="Matiks Monitor – Social + Reviews")
+            # Save combined data
+            all_df.to_csv(combined_csv, index=False)
+            logger.info(f"Saved combined data to {combined_csv} ({len(all_df)} rows)")
+
+            # Update status file
+            update_status_file(len(all_df), logger)
+
+            # Render dashboard
+            render_dashboard_html(all_df, dashboard_html)
+            logger.info(f"Rendered dashboard to {dashboard_html}")
 
             status = {
                 "ok": True,
@@ -874,6 +882,46 @@ def main() -> int:
     while True:
         schedule.run_pending()
         time.sleep(1)
+
+
+def update_status_file(total_rows, logger):
+    """Update the status.json file with current system status"""
+    try:
+        import json
+        from datetime import datetime, timezone, timedelta
+        
+        status_data = {
+            "system_status": "automated",
+            "last_update": datetime.now(timezone.utc).isoformat(),
+            "next_update": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(),
+            "update_frequency": "hourly",
+            "automation_method": "GitHub Actions",
+            "total_rows": total_rows,
+            "data_sources": [
+                "Reddit API",
+                "Twitter API (demo mode)",
+                "LinkedIn API (demo mode)", 
+                "Google Play Store RSS",
+                "Apple App Store RSS"
+            ],
+            "deployment": {
+                "platform": "Vercel",
+                "url": "https://matikstaskaigen.vercel.app/",
+                "auto_deploy": True
+            },
+            "monitoring": {
+                "health_checks": "every 6 hours",
+                "error_alerts": "GitHub Actions notifications"
+            }
+        }
+        
+        with open("status.json", "w", encoding="utf-8") as f:
+            json.dump(status_data, f, indent=2)
+        
+        logger.info(f"Updated status.json - next update: {status_data['next_update']}")
+        
+    except Exception as e:
+        logger.error(f"Failed to update status.json: {e}")
 
 
 if __name__ == "__main__":
