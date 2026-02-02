@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "started_at": "2026-02-02T22:13:16+00:00",
-  "finished_at": "2026-02-02T22:13:24+00:00",
-  "rows_total": 116,
-  "rows_new": 114,
+  "started_at": "2026-02-02T23:31:13+00:00",
+  "finished_at": "2026-02-02T23:31:20+00:00",
+  "rows_total": 117,
+  "rows_new": 58,
   "combined_csv": "C:\\Users\\sudhi\\OneDrive\\Desktop\\matiks_task\\output\\combined.csv",
   "dashboard_html": "C:\\Users\\sudhi\\OneDrive\\Desktop\\matiks_task\\output\\dashboard.html"
 }
