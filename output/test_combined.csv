@@ -1,0 +1,3 @@
+platform,type,author,engagement_likes,engagement_comments,engagement_shares,text,rating,app_version,url,timestamp
+Google Play,review,User1,0,0,0,Great app,5,1.0,,2026-02-01T12:00:00
+Google Play,review,User2,0,0,0,Good app,4,1.1,,2026-02-01T13:00:00

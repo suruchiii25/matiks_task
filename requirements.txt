@@ -1,0 +1,9 @@
+# Requirements will be added as we go
+requests
+beautifulsoup4
+pandas
+textblob
+schedule
+snscrape
+google-play-scraper
+app-store-scraper
