@@ -55,12 +55,22 @@ def analyze_text(text: str, *, neutral_threshold: float = 0.05) -> SentimentResu
         'mad dopamine', 'addicted with', 'leaderboard', 'rankings',
         '1600 rating', '1600+ rating', 'rating!!!!!', 'feels good man',
         'highly recommend', 'completely changed', 'used to hate', 'now i do',
-        'mental math', '10-minute duels', 'daily practice'
+        'mental math', '10-minute duels', 'daily practice',
+        'unmatched', 'speed and accuracy', 'addictive', '1-minute duels',
+        'comparing vs', 'vs other math apps', 'focus is unmatched'
     ]
     positive_context_count = sum(1 for ctx in positive_contexts if ctx in text_lower)
     
     # Additional check: if "crazy" appears with positive app-related words
     if 'crazy' in text_lower and any(word in text_lower for word in ['app', 'made me', 'how this', 'awesome', 'amazing', 'good']):
+        positive_context_count += 1
+    
+    # Additional check for comparison patterns that favor Matiks
+    if 'comparing' in text_lower and any(word in text_lower for word in ['unmatched', 'addictive', 'better', 'superior']):
+        positive_context_count += 1
+    
+    # Additional check for "addictive" in positive context
+    if 'addictive' in text_lower and any(word in text_lower for word in ['duels', 'game', 'app', 'matiks']):
         positive_context_count += 1
     
     # Additional check for achievement/excitement patterns
