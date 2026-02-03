@@ -1,37 +1,4 @@
 {
   "version": 2,
-  "name": "matiks-monitor",
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/output/dashboard.html"
-    },
-    {
-      "src": "/dashboard.html",
-      "dest": "/output/dashboard.html"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/output/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    }
-  ]
+  "name": "matiks-monitor"
 }
