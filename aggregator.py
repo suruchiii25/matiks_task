@@ -414,7 +414,7 @@ def render_dashboard_html(df: pd.DataFrame, out_path: str, *, title: str = "Mati
     th, td {{ border-bottom: 1px solid #f1f5f9; padding: 12px 10px; vertical-align: top; word-wrap: break-word; }}
     th {{ position: sticky; top: 0; background: #fff; text-align: left; z-index: 1; font-size: 12px; color: #374151; border-bottom: 1px solid #e5e7eb; }}
     tr:hover td {{ background: #fafafa; }}
-    td:nth-child(5) {{ max-width: 560px; white-space: pre-wrap; }}
+    td:nth-child(5) {{ max-width: 560px; white-space: normal; word-wrap: break-word; }}
     /* Fixed column widths for consistent spacing */
     th:nth-child(1), td:nth-child(1) {{ width: 140px; }}  /* Platform */
     th:nth-child(2), td:nth-child(2) {{ width: 90px; }}   /* Type */

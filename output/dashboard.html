@@ -1,2779 +1,2148 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Matiks Monitor</title>
-    <style>
-      body {
-        font-family:
-          system-ui,
-          -apple-system,
-          Segoe UI,
-          Roboto,
-          Arial,
-          sans-serif;
-        margin: 20px;
-        background: #fafafa;
-        color: #111827;
-      }
-      h1 {
-        margin: 0 0 10px 0;
-      }
-      .meta {
-        color: #555;
-        margin-bottom: 16px;
-      }
-      .controls {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(160px, 1fr));
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-      .control {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      label {
-        font-size: 12px;
-        color: #444;
-      }
-      input,
-      select {
-        padding: 10px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        background: #fff;
-      }
-      .card {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 14px;
-        padding: 14px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-      }
-      .ms {
-        position: relative;
-      }
-      .ms-btn {
-        width: 100%;
-        text-align: left;
-        padding: 10px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        background: #fff;
-        cursor: pointer;
-      }
-      .ms-btn:after {
-        content: "▾";
-        float: right;
-        color: #6b7280;
-      }
-      .ms-panel {
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 0;
-        right: 0;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        padding: 8px;
-        display: none;
-        z-index: 5;
-        max-height: 260px;
-        overflow: auto;
-      }
-      .ms.open .ms-panel {
-        display: block;
-      }
-      .ms-actions {
-        display: flex;
-        gap: 8px;
-        padding: 6px;
-        border-bottom: 1px solid #f3f4f6;
-        margin-bottom: 6px;
-      }
-      .btn {
-        appearance: none;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        border-radius: 10px;
-        padding: 6px 10px;
-        font-size: 12px;
-        cursor: pointer;
-      }
-      .btn:hover {
-        background: #f9fafb;
-      }
-      .ms-opt {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 10px;
-        padding: 8px 10px;
-        border-radius: 10px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        text-align: left;
-      }
-      .ms-opt:hover {
-        background: #f9fafb;
-      }
-      .ms-opt .name {
-        font-size: 13px;
-        color: #111827;
-      }
-      .ms-opt .mark {
-        width: 18px;
-        height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        border: 1px solid #e5e7eb;
-        color: transparent;
-      }
-      .ms-opt.selected .mark {
-        background: #111827;
-        border-color: #111827;
-        color: #fff;
-      }
-      table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        table-layout: fixed;
-      }
-      th,
-      td {
-        border-bottom: 1px solid #f1f5f9;
-        padding: 12px 10px;
-        vertical-align: top;
-        word-wrap: break-word;
-      }
-      th {
-        position: sticky;
-        top: 0;
-        background: #fff;
-        text-align: left;
-        z-index: 1;
-        font-size: 12px;
-        color: #374151;
-        border-bottom: 1px solid #e5e7eb;
-      }
-      tr:hover td {
-        background: #fafafa;
-      }
-      td:nth-child(5) {
-        max-width: 560px;
-        white-space: pre-wrap;
-      }
-      /* Fixed column widths for consistent spacing */
-      th:nth-child(1),
-      td:nth-child(1) {
-        width: 140px;
-      } /* Platform */
-      th:nth-child(2),
-      td:nth-child(2) {
-        width: 90px;
-      } /* Type */
-      th:nth-child(3),
-      td:nth-child(3) {
-        width: 180px;
-      } /* Timestamp */
-      th:nth-child(4),
-      td:nth-child(4) {
-        width: 160px;
-      } /* Author */
-      th:nth-child(5),
-      td:nth-child(5) {
-        width: 400px;
-      } /* Content */
-      th:nth-child(6),
-      td:nth-child(6) {
-        width: 90px;
-      } /* Rating */
-      th:nth-child(7),
-      td:nth-child(7) {
-        width: 120px;
-      } /* App Version */
-      th:nth-child(8),
-      td:nth-child(8) {
-        width: 90px;
-      } /* Likes */
-      th:nth-child(9),
-      td:nth-child(9) {
-        width: 90px;
-      } /* Comments */
-      th:nth-child(10),
-      td:nth-child(10) {
-        width: 90px;
-      } /* Shares */
-      th:nth-child(11),
-      td:nth-child(11) {
-        width: 90px;
-      } /* Sentiment */
-      th:nth-child(12),
-      td:nth-child(12) {
-        width: 150px;
-      } /* URL */
-      a.link {
-        color: #2563eb;
-        text-decoration: none;
-        white-space: nowrap;
-        display: inline-block;
-      }
-      a.link:hover {
-        text-decoration: underline;
-      }
-      .pill {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-      }
-      .pos {
-        background: #e8fff0;
-        color: #0b6b2f;
-      }
-      .neu {
-        background: #f3f4f6;
-        color: #374151;
-      }
-      .neg {
-        background: #ffe8e8;
-        color: #8a1f1f;
-      }
-      .count {
-        font-weight: 600;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Matiks Monitor</h1>
-    <div class="meta">
-      Last generated: 2026-02-03T05:25:00+00:00 | Rows:
-      <span class="count" id="rowCount">0</span>
-    </div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Matiks Monitor</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 20px; background: #fafafa; color: #111827; }
+    h1 { margin: 0 0 10px 0; }
+    .meta { color: #555; margin-bottom: 16px; }
+    .controls { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .control { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 12px; color: #444; }
+    input, select { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; background: #fff; }
+    .card { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .ms { position: relative; }
+    .ms-btn { width: 100%; text-align: left; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; background: #fff; cursor: pointer; }
+    .ms-btn:after { content: "▾"; float: right; color: #6b7280; }
+    .ms-panel { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 8px; display: none; z-index: 5; max-height: 260px; overflow: auto; }
+    .ms.open .ms-panel { display: block; }
+    .ms-actions { display: flex; gap: 8px; padding: 6px; border-bottom: 1px solid #f3f4f6; margin-bottom: 6px; }
+    .btn { appearance: none; border: 1px solid #d1d5db; background: #fff; border-radius: 10px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+    .btn:hover { background: #f9fafb; }
+    .ms-opt { width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 10px; border-radius: 10px; border: none; background: transparent; cursor: pointer; text-align: left; }
+    .ms-opt:hover { background: #f9fafb; }
+    .ms-opt .name { font-size: 13px; color: #111827; }
+    .ms-opt .mark { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e5e7eb; color: transparent; }
+    .ms-opt.selected .mark { background: #111827; border-color: #111827; color: #fff; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    th, td { border-bottom: 1px solid #f1f5f9; padding: 12px 10px; vertical-align: top; word-wrap: break-word; }
+    th { position: sticky; top: 0; background: #fff; text-align: left; z-index: 1; font-size: 12px; color: #374151; border-bottom: 1px solid #e5e7eb; }
+    tr:hover td { background: #fafafa; }
+    td:nth-child(5) { max-width: 560px; white-space: normal; word-wrap: break-word; }
+    /* Fixed column widths for consistent spacing */
+    th:nth-child(1), td:nth-child(1) { width: 140px; }  /* Platform */
+    th:nth-child(2), td:nth-child(2) { width: 90px; }   /* Type */
+    th:nth-child(3), td:nth-child(3) { width: 180px; }  /* Timestamp */
+    th:nth-child(4), td:nth-child(4) { width: 160px; }  /* Author */
+    th:nth-child(5), td:nth-child(5) { width: 400px; }  /* Content */
+    th:nth-child(6), td:nth-child(6) { width: 90px; }   /* Rating */
+    th:nth-child(7), td:nth-child(7) { width: 120px; }  /* App Version */
+    th:nth-child(8), td:nth-child(8) { width: 90px; }   /* Likes */
+    th:nth-child(9), td:nth-child(9) { width: 90px; }   /* Comments */
+    th:nth-child(10), td:nth-child(10) { width: 90px; }  /* Shares */
+    th:nth-child(11), td:nth-child(11) { width: 90px; }  /* Sentiment */
+    th:nth-child(12), td:nth-child(12) { width: 150px; } /* URL */
+    a.link { color: #2563eb; text-decoration: none; white-space: nowrap; display: inline-block; }
+    a.link:hover { text-decoration: underline; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+    .pos { background: #e8fff0; color: #0b6b2f; }
+    .neu { background: #f3f4f6; color: #374151; }
+    .neg { background: #ffe8e8; color: #8a1f1f; }
+    .count { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Matiks Monitor</h1>
+  <div class="meta">Last generated: 2026-02-03T00:48:33+00:00 | Rows: <span class="count" id="rowCount">0</span></div>
 
-    <div class="controls card">
-      <div class="control">
-        <label for="section">Section</label>
-        <select id="section">
-          <option value="social">Social Media</option>
-          <option value="app">App Store Reviews</option>
-        </select>
-      </div>
-      <div class="control" style="grid-column: 1 / -1">
-        <label for="platformBtn">Platforms</label>
-        <div class="ms" id="platformMs">
-          <button type="button" class="ms-btn" id="platformBtn">
-            All Platforms
-          </button>
-          <div class="ms-panel" id="platformPanel"></div>
-        </div>
-      </div>
-      <div class="control">
-        <label for="sentiment">Sentiment</label>
-        <select id="sentiment">
-          <option value="">All</option>
-          <option value="positive">Positive</option>
-          <option value="neutral">Neutral</option>
-          <option value="negative">Negative</option>
-        </select>
-      </div>
-      <div class="control">
-        <label for="startDate">Start (YYYY-MM-DD)</label>
-        <input id="startDate" type="date" />
-      </div>
-      <div class="control">
-        <label for="endDate">End (YYYY-MM-DD)</label>
-        <input id="endDate" type="date" />
-      </div>
-      <div class="control" style="grid-column: 1 / -1">
-        <label for="q">Keyword search (matches text/author/url)</label>
-        <input id="q" placeholder="matiks, bug, crash, love..." />
+  <div class="controls card">
+    <div class="control">
+      <label for="section">Section</label>
+      <select id="section">
+        <option value="social">Social Media</option>
+        <option value="app">App Store Reviews</option>
+      </select>
+    </div>
+    <div class="control" style="grid-column: 1 / -1;">
+      <label for="platformBtn">Platforms</label>
+      <div class="ms" id="platformMs">
+        <button type="button" class="ms-btn" id="platformBtn">All Platforms</button>
+        <div class="ms-panel" id="platformPanel"></div>
       </div>
     </div>
-
-    <div class="card" style="overflow: auto">
-      <table class="dataframe" id="data">
-        <thead>
-          <tr style="text-align: right">
-            <th>Platform</th>
-            <th>Type</th>
-            <th>Timestamp (UTC)</th>
-            <th>Author</th>
-            <th>Content</th>
-            <th>Rating</th>
-            <th>App Version</th>
-            <th>Likes</th>
-            <th>Comments</th>
-            <th>Shares</th>
-            <th>Sentiment</th>
-            <th>Sentiment Polarity</th>
-            <th>URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-02-02 04:29:04 UTC</td>
-            <td>Hemant Bharti</td>
-            <td>crazy app for sharping mind</td>
-            <td>5</td>
-            <td>1.18.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.300000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-02-01 23:11:18 UTC</td>
-            <td>Khushneet Kaur</td>
-            <td>
-              seems like the app was built for desktop players, it's design is
-              not responsive, can't move ahead from the second how to play
-              screen on all four game options. the info box hides at the bottom
-              of the screen on my mobile app. Fix this yaar, the ui is so good,
-              total bummer!
-            </td>
-            <td>1.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.075000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-02-01 19:20:33 UTC</td>
-            <td>Smarpit Dhiman</td>
-            <td>
-              i swear if I had money on me I would pay for all this open source
-              😭 appreciate the work man love you ❤️
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.250000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-02-01 16:13:20 UTC</td>
-            <td>Akshay Appu</td>
-            <td>great game</td>
-            <td>4.0</td>
-            <td>1.18.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.200000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-02-01 12:01:55 UTC</td>
-            <td>Netra Patel</td>
-            <td>so good 👍 👏</td>
-            <td>5.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.700000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-02-01 10:20:12 UTC</td>
-            <td>Gurleen Singh</td>
-            <td>
-              icon not displayed in the material you icon theming. only a
-              circular disk is visible and nothing else.
-            </td>
-            <td>2.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>LinkedIn</td>
-            <td>social</td>
-            <td>2026-02-01 10:00:00 UTC</td>
-            <td>Priya Sharma</td>
-            <td>
-              Matiks is one of the most engaging math apps I've used. Great for
-              quick practice and building consistency. #EdTech #Matiks
-            </td>
-            <td></td>
-            <td></td>
-            <td>24</td>
-            <td>3</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.508333</td>
-            <td>https://www.linkedin.com/feed/update/urn:li:activity:demo1</td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-31 16:07:20 UTC</td>
-            <td>Anvi Shaurya</td>
-            <td>
-              Really I love the competition in this game..... mind khul jata
-              hai.... Maths puzzle itna fastly solve karna kya khatarnak
-              compitition hai maza aa gya 👍❤️
-            </td>
-            <td>5.0</td>
-            <td>1.18.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.400000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-31 15:39:02 UTC</td>
-            <td>MohanMatiks</td>
-            <td>The only app in my Phone that is worth spending time on</td>
-            <td>5.0</td>
-            <td>1.18.100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.150000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-31 13:52:55 UTC</td>
-            <td>Tejas Prajapati</td>
-            <td>
-              everything is good until the puzzle allowed snapshot or screen
-              shot, globally the game player take the screen shot then solve the
-              puzzle after they within seconds post a solution and secure top
-              score, developer have to restricted snapshot or the time lap
-              continue even after closing app
-            </td>
-            <td>4.0</td>
-            <td>1.18.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.240000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-31 10:37:06 UTC</td>
-            <td>abhishek kumar</td>
-            <td>Best way to spend your time on screen .</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>1.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-31 10:19:14 UTC</td>
-            <td>HELLO I AM NISHANT</td>
-            <td>
-              best app to improve your memory , math solving skills and many
-              more 👍👏
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.666667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-31 09:09:58 UTC</td>
-            <td>Zidan Bhai</td>
-            <td>
-              I haven't played the game yet but I will I'm rating this because
-              of the advertisement the creative team and the advertisement team
-              went all out hope the game is also good
-            </td>
-            <td>5.0</td>
-            <td>1.18.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.100000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-31 06:20:29 UTC</td>
-            <td>Vinayak Dev</td>
-            <td>such a premium app, I love it</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.250000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-30 20:55:33 UTC</td>
-            <td>Samridhi</td>
-            <td>
-              it's a great app tbh , but after few uses it keeps me showing the
-              tutorial pop ups and it doesn't go away , there's some glitch in
-              ui , it's really frustrating coz it hasn't changed since then.
-            </td>
-            <td>2.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.066667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-30 19:36:51 UTC</td>
-            <td>Hitansh Vora</td>
-            <td>
-              I love this game. However, there is still some room for
-              improvement, you could add an option for local multiplayer, the ui
-              looks good but it can be simplified, it would be better if you
-              would add a detailed tutorial on how to play the game / solve.
-              Nice concept please keep improving this app 💖
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.237500</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-30 17:51:02 UTC</td>
-            <td>Sathyapriya Nagarajan</td>
-            <td>
-              The best game to play with zero guilt as the learning takes place
-              along with fun. Would suggest this game to all Math lovers and
-              Nerds out there
-            </td>
-            <td>5.0</td>
-            <td>1.18.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.125000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-30 14:42:43 UTC</td>
-            <td>Kanaram Sindra</td>
-            <td>worst app no proper justification any issue</td>
-            <td>1.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.500000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Twitter/X</td>
-            <td>social</td>
-            <td>2026-01-30 09:15:00 UTC</td>
-            <td>mathgeek99</td>
-            <td>
-              @Matiks has completely changed how I practice mental math. Used to
-              hate numbers, now I do 10-minute duels daily. Highly recommend!
-              🧠✨
-            </td>
-            <td></td>
-            <td></td>
-            <td>18</td>
-            <td>5</td>
-            <td>1</td>
-            <td>negative</td>
-            <td>-0.120000</td>
-            <td>https://twitter.com/mathgeek99/status/1234567891</td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-30 07:06:54 UTC</td>
-            <td>Yamuna V B</td>
-            <td>excellent</td>
-            <td>5.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>1.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-29 21:03:34 UTC</td>
-            <td>Vansh Jain</td>
-            <td>
-              this game is so good and it is made by one of our fellow iitians
-            </td>
-            <td>5.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.150000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-29 20:26:04 UTC</td>
-            <td>Rutvij Kulkarni</td>
-            <td>
-              I liked it a lot! it's been helping me take detox from the reels
-              and social media. Thanks a lot , dev team!
-            </td>
-            <td>5.0</td>
-            <td>1.18.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.344444</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-29 15:47:07 UTC</td>
-            <td>Bijoy J</td>
-            <td>
-              Encountered an issue in the app. Sent an email and 3 follow-up
-              emails. No reply received till date. Zero user support. Update 1:
-              Received a reply after 10 days. Update 2: Last mail on 27 Nov,
-              2025 and still no reply till date. Update 3: Submitted via
-              feedback form in app as developer suggested. No response from
-              there also.
-            </td>
-            <td>1.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-29 15:36:44 UTC</td>
-            <td>Kavita Kumari</td>
-            <td>
-              worst app, not letting me to play . Also not letting me to log out
-            </td>
-            <td>1.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-1.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-28 18:32:37 UTC</td>
-            <td>Veteran Ronin</td>
-            <td>very impressive</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>1.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Twitter/X</td>
-            <td>social</td>
-            <td>2026-01-28 16:45:00 UTC</td>
-            <td>growthhacker</td>
-            <td>
-              The gamification in @Matiks is brilliant. My kids actually ask to
-              practice math now. That's a win! 🎯
-            </td>
-            <td></td>
-            <td></td>
-            <td>3</td>
-            <td>1</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.633333</td>
-            <td>https://twitter.com/growthhacker/status/1234567892</td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-28 16:32:47 UTC</td>
-            <td>ANJALI GAMI</td>
-            <td>bahut badhiya game hai</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.200000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>LinkedIn</td>
-            <td>social</td>
-            <td>2026-01-28 14:30:00 UTC</td>
-            <td>Rahul Verma</td>
-            <td>
-              Just hit 100 days streak on Matiks! The team even sent a cake 🎂.
-              Best way to stay sharp with numbers. Highly recommend.
-            </td>
-            <td></td>
-            <td></td>
-            <td>18</td>
-            <td>5</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.345000</td>
-            <td>https://www.linkedin.com/feed/update/urn:li:activity:demo2</td>
-          </tr>
-          <tr>
-            <td>Twitter/X</td>
-            <td>social</td>
-            <td>2026-01-28 14:30:00 UTC</td>
-            <td>mathgeek99</td>
-            <td>Just hit 1500 rating on @Matiks! Anyone else playing this?</td>
-            <td></td>
-            <td></td>
-            <td>18</td>
-            <td>5</td>
-            <td>1</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td>https://twitter.com/mathgeek99/status/1234567891</td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-28 08:38:47 UTC</td>
-            <td>Syed Anas Wajid</td>
-            <td>
-              People need to download this, this is so amazing. 15-30 minutes of
-              your day and you feel focused. Amazing! (Need more challenges)
-            </td>
-            <td>5.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.616667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-27 20:00:54 UTC</td>
-            <td>Dipayan Mallick</td>
-            <td>
-              it's fun and addictive man...came from a reel and it's god was it
-              amazing
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.300000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-27 18:39:23 UTC</td>
-            <td>Srihari Vernekar</td>
-            <td>
-              This is an incredible app. As a junior software engineer who is
-              learning and building software, this project has become a real
-              inspiration for me. The UI/UX and features are absolutely
-              top-notch. If the developer happens to read this, I would love to
-              connect and learn more under your guidance. Thank you for building
-              something so inspiring.
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.600000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-27 15:10:38 UTC</td>
-            <td>Shubham Pandey</td>
-            <td>
-              The promo was great. It caused me to immediately download the app
-              😅
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.800000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-27 08:08:46 UTC</td>
-            <td>Vendrerigal வென்றேறிகள்</td>
-            <td>As of now it's good, since just now I downloaded this…</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.700000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-26 12:03:00 UTC</td>
-            <td>Val12344949595</td>
-            <td>
-              At first with the low amount of reviews I was skeptical, spending
-              more time, looking into the game and playing it, it turns out this
-              game is actually really fun. My favorite game mode is the memory
-              battles. I like how this app gives me the vibes of both Duolingo
-              with their mascot and the streak feature aswell as chess.com with
-              their Elo type ranking system. Very fun game, and I like the
-              features, although idk how they make money because I didn’t get
-              ads.
-            </td>
-            <td>5.0</td>
-            <td>1.18.100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>-0.014545</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-25 20:16:14 UTC</td>
-            <td>Bimla Rani</td>
-            <td>didn't work properly ..</td>
-            <td>2.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-25 19:21:09 UTC</td>
-            <td>Hrushikesh Koppula</td>
-            <td>it was for the best</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>1.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Twitter/X</td>
-            <td>social</td>
-            <td>2026-01-25 11:20:00 UTC</td>
-            <td>edutech_daily</td>
-            <td>
-              Comparing @Matiks vs other math apps - the speed and accuracy
-              focus is unmatched. The 1-minute duels are addictive! ⚡
-            </td>
-            <td></td>
-            <td></td>
-            <td>45</td>
-            <td>8</td>
-            <td>15</td>
-            <td>negative</td>
-            <td>-0.062500</td>
-            <td>https://twitter.com/edutech_daily/status/1234567893</td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-25 10:15:06 UTC</td>
-            <td>Jaipal singh Singh</td>
-            <td>gg for increasing maths speed</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>LinkedIn</td>
-            <td>social</td>
-            <td>2026-01-25 09:15:00 UTC</td>
-            <td>Anita Krishnan</td>
-            <td>
-              If you're looking for a math practice app that doesn't feel like
-              homework, try Matiks. 1-min duels are addictive in a good way.
-            </td>
-            <td></td>
-            <td></td>
-            <td>12</td>
-            <td>2</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.350000</td>
-            <td>https://www.linkedin.com/feed/update/urn:li:activity:demo3</td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-25 03:22:30 UTC</td>
-            <td>LanternBatman</td>
-            <td>
-              The games in the app are fine, they are a nice collection of
-              puzzles for which I had to download about 3 apps on Android. No
-              issues in that department.<br /><br />Where it really suck is devs
-              pushing updates regularly to time your gameplay and it’s so
-              frustrating to see it go from good to worse to good to worse. I
-              mean make up your minds guys, it is extremely frustrating when one
-              update allows you to talk and the time doesn’t counts but the next
-              update factors the time doing other things since you started the
-              game and switched to other apps. And then you have people who
-              didn’t update and are using the exploits to complete puzzles
-              impossibly in one second by restarting.<br /><br />The timer
-              optimisations and bug fixes are frustrating and if this goes on, I
-              am uninstalling the game. I will not update your app every day
-              because you are incompetent.
-            </td>
-            <td>1.0</td>
-            <td>1.18.100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.079167</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-24 18:45:11 UTC</td>
-            <td>Tanisha Garg</td>
-            <td>
-              the ad was fabulous about dopamine the main reason i downloaded
-              the app was the ad
-            </td>
-            <td>5.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.283333</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-24 17:57:49 UTC</td>
-            <td>Sahil Parab</td>
-            <td>
-              Changed my review from 5 to 2 star. Because this app is filled
-              with bugs and glitches. Freezes midway, starts late and sometimes
-              the whole app crashes. Don't know why aren't the developers
-              addressing this. Don't know!
-            </td>
-            <td>2.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.116667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-24 17:37:11 UTC</td>
-            <td>HIMANSHU (AKSHAY)</td>
-            <td>great app idea, I liked it. best app to start 2026</td>
-            <td>4.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.800000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-24 14:00:22 UTC</td>
-            <td>_Fury117</td>
-            <td>
-              Very clean app and GUI. No ads. Great competitive experience.
-              Memory games could been better. And fastest fingers duel seems to
-              have inconsistent matches. Other than that, its an awesome app.
-              Addicted!
-            </td>
-            <td>4.0</td>
-            <td>1.17.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.358611</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-23 21:55:41 UTC</td>
-            <td>Shiven Brar</td>
-            <td>
-              Really Really Addictive and i love the puzzles, You must add that
-              thing like when we want to edit a particular digit like i wrote
-              the last digits suppose 20 and answer is 320 so i have to write
-              the whole thing so add that option where I can jump from 20 and
-              write 3 in front
-            </td>
-            <td>4.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.173333</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-23 13:43:09 UTC</td>
-            <td>Rohit Kumar</td>
-            <td>
-              good to see that you can make a boring mind game so addictive... ,
-              love to see this concept, but maybe devs should add some more
-              interaction features in this app like chatting while playing or
-              clans or messaging features, overall the game is good.
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.066667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-23 10:49:02 UTC</td>
-            <td>Vishnu Manepalli</td>
-            <td>
-              good design. helps for people who want to improve quick thinking.
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.516667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-22 22:52:51 UTC</td>
-            <td>Shourya Singh</td>
-            <td>pls fix bug on chat option</td>
-            <td>4.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-22 18:19:24 UTC</td>
-            <td>Udoy Daimari</td>
-            <td>best for those who don't no mathematics</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>1.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Twitter/X</td>
-            <td>social</td>
-            <td>2026-01-22 10:15:00 UTC</td>
-            <td>edutech_daily</td>
-            <td>
-              Matiks is changing the game for quick math practice. Highly
-              recommend! 💯
-            </td>
-            <td></td>
-            <td></td>
-            <td>45</td>
-            <td>8</td>
-            <td>15</td>
-            <td>neutral</td>
-            <td>0.044444</td>
-            <td>https://twitter.com/edutech_daily/status/1234567893</td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-21 22:00:01 UTC</td>
-            <td>Srinivas Koushik Ganti</td>
-            <td>
-              what is SUM of squares of 86 isn't it 100 I am not able to
-              understand this in classical the response from Developers is very
-              fast I like it being a Developer I know how it works thanks for
-              that update please check clgs in your database there is some issue
-              with it it's not getting updated when I am trying to add one the
-              page is flickering and that it and app is really impressive.
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.242000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-21 17:45:48 UTC</td>
-            <td>Jyoti Pathe</td>
-            <td>
-              this app is good but the reason I am giving it 1 star Is because
-              when I type fast it registers only 1 number like if I type 20 it
-              only shows 0. this game deserves 5 star but because of this reason
-              it doesn't
-            </td>
-            <td>1.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.100000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-21 16:48:21 UTC</td>
-            <td>Vikas Jakhar</td>
-            <td>
-              this app is overall good But i have a question when i am inside
-              the app and i try to change the volume why this app changing my
-              call volume instead of normal one??? fix it its so annoying i cant
-              listen music while using this app.
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.012500</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-21 16:13:47 UTC</td>
-            <td>Raman Rawat</td>
-            <td>its going out of my mobile's screen size. samsung s21 fe</td>
-            <td>1.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-21 07:29:04 UTC</td>
-            <td>Saswati Biswas</td>
-            <td>
-              Well, the game is awesome for practicing maths, and your memory
-              skills but it has one problem, the texts that I write to my online
-              friends and the texts that they write both kinda disappear
-              automatically and I don't know if it is a problem with just my
-              phone or there is a problem with the game's texting system, so
-              it's my request if you would please look into the matter.
-            </td>
-            <td>4.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.066667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-20 14:43:57 UTC</td>
-            <td>Ye</td>
-            <td>such a slow app</td>
-            <td>3.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.150000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-19 19:49:52 UTC</td>
-            <td>Anushka Mahajan</td>
-            <td>IT'S GOOD, CHALLENGING, BETTER THAN DOOMSCROLLING</td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.566667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-19 08:44:02 UTC</td>
-            <td>Satyam</td>
-            <td>discarded</td>
-            <td>1.0</td>
-            <td></td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-18 23:04:08 UTC</td>
-            <td>Sri Sraghvi Allamraju</td>
-            <td>
-              I am stuck at tutorial the UI scaling is bad. pop ups go off my
-              screen and I cannot even press next to finish the tutorials . I'm
-              on s24 ultra. id like to share some images
-            </td>
-            <td>1.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.350000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-18 15:55:29 UTC</td>
-            <td>Aditya Kumar Barnwal</td>
-            <td>
-              Very good app for students who love maths and calculations. And if
-              you are bad in calculations you must try this app you will become
-              fast and accurate in calculations in only 1 week. But it is Highly
-              Addictive!!!. So make sure you can control yourself.
-            </td>
-            <td>5.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.226250</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-18 04:00:44 UTC</td>
-            <td>Fcmobilebssiowl</td>
-            <td>
-              Influencers getting shoes stuff and all and we are getting boots
-              xp <br />Well done matiks
-            </td>
-            <td>1.0</td>
-            <td>1.17.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-17 00:58:27 UTC</td>
-            <td>yashraj sharma</td>
-            <td>
-              great game to play exercises mind so much but have some internet
-              issues hope so they will be fixed in the next update
-            </td>
-            <td>4.0</td>
-            <td>1.17.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.140000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Google Play</td>
-            <td>review</td>
-            <td>2026-01-16 18:45:32 UTC</td>
-            <td>Rashim Malhotra</td>
-            <td>
-              A great app for people who want to improve themselves and test
-              their math skills. I loved it
-            </td>
-            <td>5.0</td>
-            <td>1.17.100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.750000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-16 14:22:45 UTC</td>
-            <td>Sahil Nikam</td>
-            <td>Too many ads</td>
-            <td>1.0</td>
-            <td>1.17.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.500000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-13 16:17:14 UTC</td>
-            <td>Jb-Deloitte</td>
-            <td>
-              Installed the app after a video prompt. First impression:
-              genuinely creative. Second impression: flooded with Tanmay and a
-              lineup of post-COVID, algorithm-manufactured chapri creators.
-              Deleted the app instantly. If you are actually great, stay far
-              away from them.
-            </td>
-            <td>1.0</td>
-            <td>1.17.100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.275000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-11 05:03:52 UTC</td>
-            <td>Dickeater01</td>
-            <td>Crazy how this app made me do maths.</td>
-            <td>5.0</td>
-            <td>1.16.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.300000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-11 03:29:47 UTC</td>
-            <td>@gb0820</td>
-            <td>
-              Please bring back the race against clock unlimited variant.<br /><br />I
-              know nets are for that but the sheer randomness and no need for
-              customisation deserves a comeback for us brainrot victims!!
-            </td>
-            <td>5.0</td>
-            <td>1.16.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-10 15:58:09 UTC</td>
-            <td>NameNick001@</td>
-            <td>
-              Interesting app with a solid idea and several good features.<br /><br />I
-              enjoyed it a lot during the first week, but over time the
-              experience started to feel inconsistent. Some opponents play at a
-              competitive level, while many others seem significantly weaker
-              than their ratings, which makes matches less engaging. It also
-              feels like a large proportion of games are against bots, likely
-              due to a limited player base, and this reduces long-term
-              interest.<br /><br />Additionally, the app can occasionally become
-              unresponsive, and in a competitive game this can affect match
-              outcomes and be frustrating for players.<br /><br />With
-              improvements to matchmaking transparency, bot balancing, and
-              overall responsiveness, this app has strong potential. I’d be
-              happy to revisit it after these issues are addressed.
-            </td>
-            <td>2.0</td>
-            <td>1.16.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.123160</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-10 13:20:56 UTC</td>
-            <td>Testinggg9</td>
-            <td>
-              I would love if we have the capability to have bg music play while
-              playing. Currently that stops that’s kinda bummer.<br /><br /><br />Plus
-              please please please fix the visuals for 1 &amp; 7, my brain goes
-              in a paralysis in figuring which is what.
-            </td>
-            <td>4.0</td>
-            <td>1.16.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.250000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2026-01-08 15:23:25 UTC</td>
-            <td>Svgupta4</td>
-            <td>
-              Hats off to the dev given alot of effort in it love the app.
-            </td>
-            <td>5.0</td>
-            <td>1.16.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.500000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-12-29 20:56:59 UTC</td>
-            <td>CalligrapherWild8247</td>
-            <td>
-              Have u heard about matiks<br />I'm tired of seeing those matiks
-              ads everyday, so I downloaded to see what is it about , <br />Damn
-              it is so good , <br />1min math duels are very addictive , instant
-              dopamine<br /><br />After some research, i found out that founders
-              are from IIT Guwahati 2022 batch <br />Damn , am I the only one
-              who was living under a rock?
-            </td>
-            <td></td>
-            <td></td>
-            <td>20</td>
-            <td>18</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.016667</td>
-            <td>
-              https://reddit.com/r/iitg/comments/1pyxxcy/have_u_heard_about_matiks/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-12-27 17:16:34 UTC</td>
-            <td>Nacho Salamanca</td>
-            <td>
-              LinkedIn, Instagram and what not — I've tried multiple platforms
-              to connect with the customer support to get my account back but
-              there has been no response at all. If by any chance the app people
-              are reading this, I AM UNABLE TO LOGIN TO MY ACCOUNT THROUGH MY
-              APPLE ID. Though you've already lost me as a loyal subscriber to
-              the app, but if you still feel like helping it would be
-              appreciated.
-            </td>
-            <td>1.0</td>
-            <td>1.15.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.006667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-12-25 10:34:43 UTC</td>
-            <td>kritimathur99</td>
-            <td>Love the app, definitely the good kinda addiction</td>
-            <td>5.0</td>
-            <td>1.15.300</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.400000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-12-08 16:09:31 UTC</td>
-            <td>Levi player1</td>
-            <td>
-              Don’t know if it’s a bug or something else but I’m unable to login
-              to the app even after multiple attempts.
-            </td>
-            <td>1.0</td>
-            <td>1.14.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.250000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-12-01 19:41:21 UTC</td>
-            <td>Jsakshxm</td>
-            <td>
-              This game has really increased cognitive response speed + it’s fun
-              to play with your friends
-            </td>
-            <td>5.0</td>
-            <td>1.14.100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.033333</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-23 13:14:32 UTC</td>
-            <td>K123Ritesh</td>
-            <td>Too much good</td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.700000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-22 03:20:31 UTC</td>
-            <td>Dhayando</td>
-            <td>MG pro max</td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-20 12:52:15 UTC</td>
-            <td>ZeroMors</td>
-            <td>Crazy app</td>
-            <td>4.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.300000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-19 14:44:51 UTC</td>
-            <td>Vb1710</td>
-            <td>
-              The chunking strategy exercises have transformed how I remember
-              information.
-            </td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-19 07:11:16 UTC</td>
-            <td>Hrshjh</td>
-            <td>IQ booster games</td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-19 04:18:19 UTC</td>
-            <td>Dakshmalhotra</td>
-            <td>best brain game</td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.300000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-18 14:52:38 UTC</td>
-            <td>Terridax1234</td>
-            <td>Gr8 initiative, excellent mind refreshing</td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.750000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-18 13:30:43 UTC</td>
-            <td>HanikaS</td>
-            <td>
-              I’m not a “math girl” at all, but Matiks has become my quick go-to
-              before any important meeting. I play a one-minute duels, get a
-              nice little dopamine boost, and my brain genuinely feels sharper
-              and more focused after. It doesn’t feel like studying just fun,
-              fast games that somehow make my brain perform better. Plus the app
-              is minimal, clean and not kiddish, so I actually enjoy opening it
-              every day.
-            </td>
-            <td>5.0</td>
-            <td>1.14.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.309375</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-11-18 09:38:31 UTC</td>
-            <td>Haunting-Play2908</td>
-            <td>
-              Finally gained Matiks rating 1600 after playing for so long!<br />i
-              have been grinding matiks daily for past 6 months started it to
-              just get better at math (left maths after 10th) and do something
-              more productive than just doomscrolling. got addicted with
-              leaderboard and rankings in game (i get a mad dopamine rush
-              everytime i win) and after playing it daily for past 6 months
-              finally got 1600+ rating!!!!! Feels so good man
-            </td>
-            <td></td>
-            <td></td>
-            <td>369</td>
-            <td>34</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.534167</td>
-            <td>
-              https://reddit.com/r/Indiangamers/comments/1p07p9i/finally_gained_matiks_rating_1600_after_playing/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-14 06:10:13 UTC</td>
-            <td>iLeicoW</td>
-            <td>
-              Très sympa pour s’entraîner aux calculs mentaux, je recommande
-            </td>
-            <td>5.0</td>
-            <td>1.13.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-11-06 07:06:01 UTC</td>
-            <td>Basilisk ALPHA</td>
-            <td>
-              Just downloaded this app, had a bug or glitch occurring during
-              changing my user name but the app is greatt
-            </td>
-            <td>2.0</td>
-            <td>1.11.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-10-31 10:42:12 UTC</td>
-            <td>vsshal7</td>
-            <td>
-              games to have a sharp brain. matiks &amp;amp; chess.com<br />I
-              play both chess &amp;amp; matiks. What i feel is chess is pretty
-              cool. just that it takes a lot of time and its hard to keep paying
-              attention for such a long time. matiks is more casual, fast paced.
-              Its like several bite sized dopamine hits (like that rush when you
-              win or finish challenges). imo neither is a substitute for each
-              other but i just want to flex that i can play games like these
-              well,, i knock out both for the fun of it plus the dopamine rush
-              once i win is just next level
-            </td>
-            <td></td>
-            <td></td>
-            <td>592</td>
-            <td>39</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.640556</td>
-            <td>
-              https://reddit.com/r/Indiangamers/comments/1okr5ru/games_to_have_a_sharp_brain_matiks_chesscom/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-10-18 22:18:37 UTC</td>
-            <td>YellowPurpleYellow</td>
-            <td>
-              This game would be much more fun if it wasn't trying to boost
-              engagement by having people only play against bots, so they feel
-              like they are winning. I don't really mind if that means the
-              queues take longer, or people arent in my exact elo range.<br /><br />Also
-              the ranked elo should give you more or less than normal when you
-              first make an account, so it can find your skill level.<br /><br />This
-              game also feels like it does steal a lot of assets from duolingo
-              and chess.com which could pose an issue if it becomes big enough.
-            </td>
-            <td>1.0</td>
-            <td>1.11.200</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.120238</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-10-06 09:12:43 UTC</td>
-            <td>vsshal7</td>
-            <td>
-              Matiks bagged $3.1M in funding<br />matiks, gaming startup, bagged
-              major funding lately. For context of those who dont know its about
-              live math duels, multiplayer challenge, sort of like word hunt
-              &amp;amp; chess meets maths. Was wondering with the real-money
-              gaming facing bans lately, ofcourse games like this, like more
-              skill games would arise. Good to see the shift in indian gaming
-              landscape.
-            </td>
-            <td></td>
-            <td></td>
-            <td>242</td>
-            <td>45</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.133144</td>
-            <td>
-              https://reddit.com/r/Indiangamers/comments/1nze5m5/matiks_bagged_31m_in_funding/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-09-16 03:32:36 UTC</td>
-            <td>Adi_slay</td>
-            <td>
-              Amazing amazing concept, clean af UI.. got me Hooked up like
-              chesscom got me few years back
-            </td>
-            <td>5.0</td>
-            <td>1.10.510</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.273333</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-09-08 15:27:04 UTC</td>
-            <td>AP_FCFE</td>
-            <td>I’ve tried a few apps, this one is the best one out there.</td>
-            <td>5.0</td>
-            <td>1.10.500</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.400000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-08-30 13:55:35 UTC</td>
-            <td>Chilly-777</td>
-            <td>
-              my girlfriend keeps beating me in matiks duels<br />we used to
-              play chess duels but she didn't know how to play chess well. we
-              downloaded matiks together while ago &amp;amp; now she keeps
-              beating me lol
-            </td>
-            <td></td>
-            <td></td>
-            <td>399</td>
-            <td>55</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.800000</td>
-            <td>
-              https://reddit.com/r/IndianGaming/comments/1n428n5/my_girlfriend_keeps_beating_me_in_matiks_duels/
-            </td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-08-29 09:24:42 UTC</td>
-            <td>AccomplishedLie7719</td>
-            <td>
-              Matiks sent me a cake lol, for 100 days streak!<br />So this post
-              has been long pending as I've been waiting for the day I hit 100
-              days on Matiks. I was scrolling LinkedIn when I found the app,
-              (drishtibution), but didn't really download it. However, someone
-              posted a photo of them with cake for 100 day streak, and I was
-              like, I want to do this 😂<br /><br />In the last 107 days, I've
-              seen this app change so much. I've followed them what they are
-              doing, even used to send them feedbacks on the application. And
-              yeah, it's been fun. My rating has been stable and haven't been
-              able to increase it, but I still don't miss my streak. Fun to hai
-              application. success of matiks feels personal <br /><br />It's
-              been nice abhi tak, really want to get something on the 200 streak
-              now, maybe not a cake😂<br /><br />PS: Matiks team if you're
-              reading this, the old UI was better, new one is bad😭
-            </td>
-            <td></td>
-            <td></td>
-            <td>7</td>
-            <td>2</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.285758</td>
-            <td>
-              https://reddit.com/r/matiks/comments/1n32ofy/matiks_sent_me_a_cake_lol_for_100_days_streak/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-08-25 13:37:44 UTC</td>
-            <td>Sid3144</td>
-            <td>
-              Losing a lot of competitions because the keyboard takes time to
-              register keypresses. Please fix it.
-            </td>
-            <td>3.0</td>
-            <td>1.10.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-08-17 13:18:39 UTC</td>
-            <td>Obvious-Fisherman998</td>
-            <td>
-              Just hit a 21-day streak in the daily math duel game Matiks<br />Been
-              playing Matiks consistently for the past 3 weeks. It’s a math
-              puzzle game with quick duels and group challenges. I usually spend
-              around 30–50 minutes a day on it, solid mix of fun and focus.<br /><br />The
-              streak feels nice to maintain, especially on those tougher puzzle
-              days and daily challenges.<br />What’s your current streak?
-            </td>
-            <td></td>
-            <td></td>
-            <td>263</td>
-            <td>27</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.014103</td>
-            <td>
-              https://reddit.com/r/Indiangamers/comments/1msqpuh/just_hit_a_21day_streak_in_the_daily_math_duel/
-            </td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-08-16 12:15:40 UTC</td>
-            <td>Solenoidics</td>
-            <td>
-              Got so tired of seeing matiks on my twitter and finally gave it a
-              try.<br />kept seeing matiks on my twitter for weeks and honestly
-              was gonna mute them cause it was getting annoying. finally gave in
-              and downloaded it just to see what the hype was about… and yeah i
-              get it now. it’s like 1 min quick math duels with instant
-              dopamine. I won a few games &amp;amp; started chasing higher
-              rating.  now i’m one of those people flexing my rating too 💀
-            </td>
-            <td></td>
-            <td></td>
-            <td>459</td>
-            <td>35</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>-0.024074</td>
-            <td>
-              https://reddit.com/r/unitedstatesofindia/comments/1mrtki0/got_so_tired_of_seeing_matiks_on_my_twitter_and/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-08-15 16:10:33 UTC</td>
-            <td>A1997C</td>
-            <td>Amazing</td>
-            <td>5.0</td>
-            <td>1.10.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.600000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reddit</td>
-            <td>social</td>
-            <td>2025-08-08 11:34:38 UTC</td>
-            <td>kuzuma-</td>
-            <td>
-              From clash royale to matiks - upgrading my mobile gaming
-              experience on a low-end device<br />used to play Clash royale and
-              other casual games on my low-end Android 9 device, but they often
-              heated up my phone or were unsupported. I switched to web-based
-              games like Skribbl and Wordle, which worked okay, but I got bored.
-              Then i discovered Matiks, and it's been a game changer. puzzles
-              are engaging, the UX is great, and it's pretty competitive. Plus,
-              it runs smoothly on my device. anyone else replaced clash royale
-              for something new?
-            </td>
-            <td></td>
-            <td></td>
-            <td>238</td>
-            <td>35</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.096136</td>
-            <td>
-              https://reddit.com/r/GadgetsIndia/comments/1mksrl4/from_clash_royale_to_matiks_upgrading_my_mobile/
-            </td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-07-13 12:02:09 UTC</td>
-            <td>Ghising Bro</td>
-            <td>Too much of push notifications.</td>
-            <td>2.0</td>
-            <td>1.9.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.200000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-07-09 10:10:11 UTC</td>
-            <td>Sid6780</td>
-            <td>
-              Loved it. Best app on app store, my 5 y/o son is getting good at
-              maths
-            </td>
-            <td>5.0</td>
-            <td>1.8.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.800000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-07-05 14:01:44 UTC</td>
-            <td>soodaryan</td>
-            <td>
-              Honestly, this app is a hidden gem. Super clean UI, no clutter,
-              just gets to the point. I’ve been using it for a bit now and it’s
-              become part of my daily flow. I was literally the last person to
-              ever be into doing maths in my fun time…. But after using Matiks
-              for a while the puzzles are actually sooo interesting and
-              addictive !! No bugs so far, and the updates actually improve the
-              experience (rare these days). Keep it up, team this one’s solid!!!
-            </td>
-            <td>5.0</td>
-            <td>1.8.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.166667</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-06-19 17:37:21 UTC</td>
-            <td>rishi,?</td>
-            <td>
-              Please let me know how can i donate or contribute towards
-              something to people who made this
-            </td>
-            <td>5.0</td>
-            <td>1.8.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>0.000000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-06-05 08:31:10 UTC</td>
-            <td>theLuffy01</td>
-            <td>Great app to sharp your brain</td>
-            <td>5.0</td>
-            <td>1.8.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.337500</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-06-02 04:42:05 UTC</td>
-            <td>Kavita Jha</td>
-            <td>
-              Lately I’ve been noticing that the screen goes white randomly,
-              sometimes mid match, thus affecting my rating.
-            </td>
-            <td>2.0</td>
-            <td>1.8.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.200000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-05-13 05:58:05 UTC</td>
-            <td>FR0_Y0</td>
-            <td>
-              Only started playing a few weeks ago. I like how the game pushes
-              you in a zone of focus once you’re in it. Looking forward to play
-              more of it and often.
-            </td>
-            <td>5.0</td>
-            <td>1.8.000</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>neutral</td>
-            <td>-0.025000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-05-07 03:04:13 UTC</td>
-            <td>Rushi :)</td>
-            <td>
-              This has been amazing. I’ve been using this over a week now and I
-              highly recommend this to everyone out there.
-            </td>
-            <td>5.0</td>
-            <td>1.7.0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.380000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-04-29 05:22:19 UTC</td>
-            <td>Nikhil Tekwani</td>
-            <td>
-              I never thought I’d say this, but I’m addicted to a maths app!
-              Matiks has completely transformed how I feel about maths. It used
-              to be something I avoided, but since switching to this app, I’ve
-              actually started loving it. The way Matiks makes learning fun and
-              interactive is incredible – it doesn’t feel like studying at all.
-              Plus, the app’s UI is clean, smooth, and really enjoyable to use.
-              If maths has ever felt boring or difficult to you, give Matiks a
-              try — it might just change everything like it did for me.
-            </td>
-            <td>5.0</td>
-            <td>1.7.0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.106061</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-04-16 09:45:44 UTC</td>
-            <td>wheredoigetnewnickname</td>
-            <td>
-              Never have I ever felt refreshed after using an app. Matiks is
-              mental face wash (wth!?). Whatever. It has my 5 stars.
-            </td>
-            <td>5.0</td>
-            <td>1.7.0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.125000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-04-03 10:42:04 UTC</td>
-            <td>deepak.patil.10</td>
-            <td>
-              Math doesn’t need to be just subject in school, this literally
-              makes math fun for me, with the added benefit of keeping me
-              cognitively sound.
-            </td>
-            <td>5.0</td>
-            <td>Test</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.177778</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-04-01 12:56:15 UTC</td>
-            <td>killer4638</td>
-            <td>Amazing application to work on mental maths</td>
-            <td>5.0</td>
-            <td>Test</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.250000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-03-12 10:55:45 UTC</td>
-            <td>Vaarshik</td>
-            <td>A matiks game a day, keeps brain rot away</td>
-            <td>5.0</td>
-            <td>1.0.400</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.300000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-03-10 13:50:40 UTC</td>
-            <td>Meyashsharma</td>
-            <td>
-              UI is good but little complex and backend is slow that is very bad
-              for new users submitting your answers taking more than 2-3 minutes
-              even with a 300mbps connection.
-            </td>
-            <td>2.0</td>
-            <td>1.0.352</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>negative</td>
-            <td>-0.051591</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2025-01-04 07:10:41 UTC</td>
-            <td>Samarth Saraswat</td>
-            <td>
-              One of a kind app which keeps you mentally fit and helps you fight
-              brain rot.
-            </td>
-            <td>5.0</td>
-            <td>1.0.21</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.500000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2024-12-19 12:58:43 UTC</td>
-            <td>sofu.exe</td>
-            <td>Exactly what I needed to take my brain rot away</td>
-            <td>5.0</td>
-            <td>1.0.1</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.750000</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2024-12-17 11:49:19 UTC</td>
-            <td>AB Satyaprakash</td>
-            <td>The best mental math app out there. Highly recommended</td>
-            <td>5.0</td>
-            <td>1.0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.353333</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Apple App Store</td>
-            <td>review</td>
-            <td>2024-12-17 04:02:48 UTC</td>
-            <td>math.geeks</td>
-            <td>Best App for improving mental maths in a fun way</td>
-            <td>5.0</td>
-            <td>1.0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>positive</td>
-            <td>0.400000</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="control">
+      <label for="sentiment">Sentiment</label>
+      <select id="sentiment">
+        <option value="">All</option>
+        <option value="positive">Positive</option>
+        <option value="neutral">Neutral</option>
+        <option value="negative">Negative</option>
+      </select>
     </div>
+    <div class="control">
+      <label for="startDate">Start (YYYY-MM-DD)</label>
+      <input id="startDate" type="date" />
+    </div>
+    <div class="control">
+      <label for="endDate">End (YYYY-MM-DD)</label>
+      <input id="endDate" type="date" />
+    </div>
+    <div class="control" style="grid-column: 1 / -1;">
+      <label for="q">Keyword search (matches text/author/url)</label>
+      <input id="q" placeholder="matiks, bug, crash, love..." />
+    </div>
+  </div>
 
-    <script>
-      const table = document.getElementById("data");
-      const tbody = table.tBodies[0];
-      const rows = Array.from(tbody.rows);
+  <div class="card" style="overflow:auto;">
+    <table class="dataframe" id="data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Platform</th>
+      <th>Type</th>
+      <th>Timestamp (UTC)</th>
+      <th>Author</th>
+      <th>Content</th>
+      <th>Rating</th>
+      <th>App Version</th>
+      <th>Likes</th>
+      <th>Comments</th>
+      <th>Shares</th>
+      <th>Sentiment</th>
+      <th>Sentiment Polarity</th>
+      <th>URL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-02-02 04:29:04 UTC</td>
+      <td>Hemant Bharti</td>
+      <td>crazy app for sharping mind</td>
+      <td>5.0</td>
+      <td>1.18.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.300000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-02-01 23:11:18 UTC</td>
+      <td>Khushneet Kaur</td>
+      <td>seems like the app was built for desktop players, it's design is not responsive, can't move ahead from the second how to play screen on all four game options. the info box hides at the bottom of the screen on my mobile app. Fix this yaar, the ui is so good, total bummer!</td>
+      <td>1.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.075000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-02-01 19:20:33 UTC</td>
+      <td>Smarpit Dhiman</td>
+      <td>i swear if I had money on me I would pay for all this open source 😭 appreciate the work man love you ❤️</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.250000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-02-01 16:13:20 UTC</td>
+      <td>Akshay Appu</td>
+      <td>great game</td>
+      <td>4.0</td>
+      <td>1.18.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.200000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-02-01 12:01:55 UTC</td>
+      <td>Netra Patel</td>
+      <td>so good 👍 👏</td>
+      <td>5.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.700000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-02-01 10:20:12 UTC</td>
+      <td>Gurleen Singh</td>
+      <td>icon not displayed in the material you icon theming. only a circular disk is visible and nothing else.</td>
+      <td>2.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>LinkedIn</td>
+      <td>social</td>
+      <td>2026-02-01 10:00:00 UTC</td>
+      <td>Priya Sharma</td>
+      <td>Matiks is one of the most engaging math apps I've used. Great for quick practice and building consistency. #EdTech #Matiks</td>
+      <td></td>
+      <td></td>
+      <td>24</td>
+      <td>3</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.508333</td>
+      <td>https://www.linkedin.com/feed/update/urn:li:activity:demo1</td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-31 16:07:20 UTC</td>
+      <td>Anvi Shaurya</td>
+      <td>Really I love the competition in this game..... mind khul jata hai.... Maths puzzle itna fastly solve karna kya khatarnak compitition hai maza aa gya 👍❤️</td>
+      <td>5.0</td>
+      <td>1.18.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.400000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-31 15:39:02 UTC</td>
+      <td>MohanMatiks</td>
+      <td>The only app in my Phone that is worth spending time on</td>
+      <td>5.0</td>
+      <td>1.18.100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.150000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-31 13:52:55 UTC</td>
+      <td>Tejas Prajapati</td>
+      <td>everything is good until the puzzle allowed snapshot or screen shot, globally the game player take the screen shot then solve the puzzle after they within seconds post a solution and secure top score, developer have to restricted snapshot or the time lap continue even after closing app</td>
+      <td>4.0</td>
+      <td>1.18.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.240000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-31 10:37:06 UTC</td>
+      <td>abhishek kumar</td>
+      <td>Best way to spend your time on screen .</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>1.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-31 10:19:14 UTC</td>
+      <td>HELLO I AM NISHANT</td>
+      <td>best app to improve your memory , math solving skills and many more 👍👏</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.666667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-31 09:09:58 UTC</td>
+      <td>Zidan Bhai</td>
+      <td>I haven't played the game yet but I will I'm rating this because of the advertisement the creative team and the advertisement team went all out hope the game is also good</td>
+      <td>5.0</td>
+      <td>1.18.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.100000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-31 06:20:29 UTC</td>
+      <td>Vinayak Dev</td>
+      <td>such a premium app, I love it</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.250000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-30 20:55:33 UTC</td>
+      <td>Samridhi</td>
+      <td>it's a great app tbh , but after few uses it keeps me showing the tutorial pop ups and it doesn't go away , there's some glitch in ui , it's really frustrating coz it hasn't changed since then.</td>
+      <td>2.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.066667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-30 19:36:51 UTC</td>
+      <td>Hitansh Vora</td>
+      <td>I love this game. However, there is still some room for improvement, you could add an option for local multiplayer, the ui looks good but it can be simplified, it would be better if you would add a detailed tutorial on how to play the game / solve. Nice concept please keep improving this app 💖</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.237500</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-30 17:51:02 UTC</td>
+      <td>Sathyapriya Nagarajan</td>
+      <td>The best game to play with zero guilt as the learning takes place along with fun. Would suggest this game to all Math lovers and Nerds out there</td>
+      <td>5.0</td>
+      <td>1.18.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.125000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-30 14:42:43 UTC</td>
+      <td>Kanaram Sindra</td>
+      <td>worst app no proper justification any issue</td>
+      <td>1.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.500000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Twitter/X</td>
+      <td>social</td>
+      <td>2026-01-30 09:15:00 UTC</td>
+      <td>mathgeek99</td>
+      <td>@Matiks has completely changed how I practice mental math. Used to hate numbers, now I do 10-minute duels daily. Highly recommend! 🧠✨</td>
+      <td></td>
+      <td></td>
+      <td>18</td>
+      <td>5</td>
+      <td>1</td>
+      <td>negative</td>
+      <td>-0.120000</td>
+      <td>https://twitter.com/mathgeek99/status/1234567891</td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-30 07:06:54 UTC</td>
+      <td>Yamuna V B</td>
+      <td>excellent</td>
+      <td>5.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>1.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-29 21:03:34 UTC</td>
+      <td>Vansh Jain</td>
+      <td>this game is so good and it is made by one of our fellow iitians</td>
+      <td>5.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.150000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-29 20:26:04 UTC</td>
+      <td>Rutvij Kulkarni</td>
+      <td>I liked it a lot! it's been helping me take detox from the reels and social media. Thanks a lot , dev team!</td>
+      <td>5.0</td>
+      <td>1.18.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.344444</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-29 15:47:07 UTC</td>
+      <td>Bijoy J</td>
+      <td>Encountered an issue in the app. Sent an email and 3 follow-up emails. No reply received till date. Zero user support. Update 1: Received a reply after 10 days. Update 2: Last mail on 27 Nov, 2025 and still no reply till date. Update 3: Submitted via feedback form in app as developer suggested. No response from there also.</td>
+      <td>1.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-29 15:36:44 UTC</td>
+      <td>Kavita Kumari</td>
+      <td>worst app, not letting me to play . Also not letting me to log out</td>
+      <td>1.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-1.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-28 18:32:37 UTC</td>
+      <td>Veteran Ronin</td>
+      <td>very impressive</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>1.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Twitter/X</td>
+      <td>social</td>
+      <td>2026-01-28 16:45:00 UTC</td>
+      <td>growthhacker</td>
+      <td>The gamification in @Matiks is brilliant. My kids actually ask to practice math now. That's a win! 🎯</td>
+      <td></td>
+      <td></td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.633333</td>
+      <td>https://twitter.com/growthhacker/status/1234567892</td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-28 16:32:47 UTC</td>
+      <td>ANJALI GAMI</td>
+      <td>bahut badhiya game hai</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.200000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>LinkedIn</td>
+      <td>social</td>
+      <td>2026-01-28 14:30:00 UTC</td>
+      <td>Rahul Verma</td>
+      <td>Just hit 100 days streak on Matiks! The team even sent a cake 🎂. Best way to stay sharp with numbers. Highly recommend.</td>
+      <td></td>
+      <td></td>
+      <td>18</td>
+      <td>5</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.345000</td>
+      <td>https://www.linkedin.com/feed/update/urn:li:activity:demo2</td>
+    </tr>
+    <tr>
+      <td>Twitter/X</td>
+      <td>social</td>
+      <td>2026-01-28 14:30:00 UTC</td>
+      <td>mathgeek99</td>
+      <td>Just hit 1500 rating on @Matiks! Anyone else playing this?</td>
+      <td></td>
+      <td></td>
+      <td>18</td>
+      <td>5</td>
+      <td>1</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td>https://twitter.com/mathgeek99/status/1234567891</td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-28 08:38:47 UTC</td>
+      <td>Syed Anas Wajid</td>
+      <td>People need to download this, this is so amazing. 15-30 minutes of your day and you feel focused. Amazing! (Need more challenges)</td>
+      <td>5.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.616667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-27 20:00:54 UTC</td>
+      <td>Dipayan Mallick</td>
+      <td>it's fun and addictive man...came from a reel and it's god was it amazing</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.300000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-27 18:39:23 UTC</td>
+      <td>Srihari Vernekar</td>
+      <td>This is an incredible app. As a junior software engineer who is learning and building software, this project has become a real inspiration for me. The UI/UX and features are absolutely top-notch. If the developer happens to read this, I would love to connect and learn more under your guidance. Thank you for building something so inspiring.</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.600000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-27 15:10:38 UTC</td>
+      <td>Shubham Pandey</td>
+      <td>The promo was great. It caused me to immediately download the app 😅</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.800000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-27 08:08:46 UTC</td>
+      <td>Vendrerigal வென்றேறிகள்</td>
+      <td>As of now it's good, since just now I downloaded this…</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.700000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-26 12:03:00 UTC</td>
+      <td>Val12344949595</td>
+      <td>At first with the low amount of reviews I was skeptical, spending more time, looking into the game and playing it, it turns out this game is actually really fun. My favorite game mode is the memory battles. I like how this app gives me the vibes of both Duolingo with their mascot and the streak feature aswell as chess.com with their Elo type ranking system. Very fun game, and I like the features, although idk how they make money because I didn’t get ads.</td>
+      <td>5.0</td>
+      <td>1.18.100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>-0.014545</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-25 20:16:14 UTC</td>
+      <td>Bimla Rani</td>
+      <td>didn't work properly ..</td>
+      <td>2.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-25 19:21:09 UTC</td>
+      <td>Hrushikesh Koppula</td>
+      <td>it was for the best</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>1.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Twitter/X</td>
+      <td>social</td>
+      <td>2026-01-25 11:20:00 UTC</td>
+      <td>edutech_daily</td>
+      <td>Comparing @Matiks vs other math apps - the speed and accuracy focus is unmatched. The 1-minute duels are addictive! ⚡</td>
+      <td></td>
+      <td></td>
+      <td>45</td>
+      <td>8</td>
+      <td>15</td>
+      <td>negative</td>
+      <td>-0.062500</td>
+      <td>https://twitter.com/edutech_daily/status/1234567893</td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-25 10:15:06 UTC</td>
+      <td>Jaipal singh Singh</td>
+      <td>gg for increasing maths speed</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>LinkedIn</td>
+      <td>social</td>
+      <td>2026-01-25 09:15:00 UTC</td>
+      <td>Anita Krishnan</td>
+      <td>If you're looking for a math practice app that doesn't feel like homework, try Matiks. 1-min duels are addictive in a good way.</td>
+      <td></td>
+      <td></td>
+      <td>12</td>
+      <td>2</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.350000</td>
+      <td>https://www.linkedin.com/feed/update/urn:li:activity:demo3</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-25 03:22:30 UTC</td>
+      <td>LanternBatman</td>
+      <td>The games in the app are fine, they are a nice collection of puzzles for which I had to download about 3 apps on Android. No issues in that department.<br><br>Where it really suck is devs pushing updates regularly to time your gameplay and it’s so frustrating to see it go from good to worse to good to worse. I mean make up your minds guys, it is extremely frustrating when one update allows you to talk and the time doesn’t counts but the next update factors the time doing other things since you started the game and switched to other apps. And then you have people who didn’t update and are using the exploits to complete puzzles impossibly in one second by restarting.<br><br>The timer optimisations and bug fixes are frustrating and if this goes on, I am uninstalling the game. I will not update your app every day because you are incompetent.</td>
+      <td>1.0</td>
+      <td>1.18.100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.079167</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-24 18:45:11 UTC</td>
+      <td>Tanisha Garg</td>
+      <td>the ad was fabulous about dopamine the main reason i downloaded the app was the ad</td>
+      <td>5.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.283333</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-24 17:57:49 UTC</td>
+      <td>Sahil Parab</td>
+      <td>Changed my review from 5 to 2 star. Because this app is filled with bugs and glitches. Freezes midway, starts late and sometimes the whole app crashes. Don't know why aren't the developers addressing this. Don't know!</td>
+      <td>2.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.116667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-24 17:37:11 UTC</td>
+      <td>HIMANSHU (AKSHAY)</td>
+      <td>great app idea, I liked it. best app to start 2026</td>
+      <td>4.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.800000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-24 14:00:22 UTC</td>
+      <td>_Fury117</td>
+      <td>Very clean app and GUI. No ads. Great competitive experience. Memory games could been better. And fastest fingers duel seems to have inconsistent matches. Other than that, its an awesome app. Addicted!</td>
+      <td>4.0</td>
+      <td>1.17.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.358611</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-23 21:55:41 UTC</td>
+      <td>Shiven Brar</td>
+      <td>Really Really Addictive and i love the puzzles, You must add that thing like when we want to edit a particular digit like i wrote the last digits suppose 20 and answer is 320 so i have to write the whole thing so add that option where I can jump from 20 and write 3 in front</td>
+      <td>4.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.173333</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-23 13:43:09 UTC</td>
+      <td>Rohit Kumar</td>
+      <td>good to see that you can make a boring mind game so addictive... , love to see this concept, but maybe devs should add some more interaction features in this app like chatting while playing or clans or messaging features, overall the game is good.</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.066667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-23 10:49:02 UTC</td>
+      <td>Vishnu Manepalli</td>
+      <td>good design. helps for people who want to improve quick thinking.</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.516667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-22 22:52:51 UTC</td>
+      <td>Shourya Singh</td>
+      <td>pls fix bug on chat option</td>
+      <td>4.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-22 18:19:24 UTC</td>
+      <td>Udoy Daimari</td>
+      <td>best for those who don't no mathematics</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>1.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Twitter/X</td>
+      <td>social</td>
+      <td>2026-01-22 10:15:00 UTC</td>
+      <td>edutech_daily</td>
+      <td>Matiks is changing the game for quick math practice. Highly recommend! 💯</td>
+      <td></td>
+      <td></td>
+      <td>45</td>
+      <td>8</td>
+      <td>15</td>
+      <td>neutral</td>
+      <td>0.044444</td>
+      <td>https://twitter.com/edutech_daily/status/1234567893</td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-21 22:00:01 UTC</td>
+      <td>Srinivas Koushik Ganti</td>
+      <td>what is SUM of squares of 86 isn't it 100 I am not able to understand this in classical the response from Developers is very fast I like it being a Developer I know how it works thanks for that update please check clgs in your database there is some issue with it it's not getting updated when I am trying to add one the page is flickering and that it and app is really impressive.</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.242000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-21 17:45:48 UTC</td>
+      <td>Jyoti Pathe</td>
+      <td>this app is good but the reason I am giving it 1 star Is because when I type fast it registers only 1 number like if I type 20 it only shows 0. this game deserves 5 star but because of this reason it doesn't</td>
+      <td>1.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.100000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-21 16:48:21 UTC</td>
+      <td>Vikas Jakhar</td>
+      <td>this app is overall good But i have a question when i am inside the app and i try to change the volume why this app changing my call volume instead of normal one??? fix it its so annoying i cant listen music while using this app.</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.012500</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-21 16:13:47 UTC</td>
+      <td>Raman Rawat</td>
+      <td>its going out of my mobile's screen size. samsung s21 fe</td>
+      <td>1.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-21 07:29:04 UTC</td>
+      <td>Saswati Biswas</td>
+      <td>Well, the game is awesome for practicing maths, and your memory skills but it has one problem, the texts that I write to my online friends and the texts that they write both kinda disappear automatically and I don't know if it is a problem with just my phone or there is a problem with the game's texting system, so it's my request if you would please look into the matter.</td>
+      <td>4.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.066667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-20 14:43:57 UTC</td>
+      <td>Ye</td>
+      <td>such a slow app</td>
+      <td>3.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.150000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-19 19:49:52 UTC</td>
+      <td>Anushka Mahajan</td>
+      <td>IT'S GOOD, CHALLENGING, BETTER THAN DOOMSCROLLING</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.566667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-19 08:44:02 UTC</td>
+      <td>Satyam</td>
+      <td>discarded</td>
+      <td>1.0</td>
+      <td></td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-18 23:04:08 UTC</td>
+      <td>Sri Sraghvi Allamraju</td>
+      <td>I am stuck at tutorial the UI scaling is bad. pop ups go off my screen and I cannot even press next to finish the tutorials . I'm on s24 ultra. id like to share some images</td>
+      <td>1.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.350000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-18 15:55:29 UTC</td>
+      <td>Aditya Kumar Barnwal</td>
+      <td>Very good app for students who love maths and calculations. And if you are bad in calculations you must try this app you will become fast and accurate in calculations in only 1 week. But it is Highly Addictive!!!. So make sure you can control yourself.</td>
+      <td>5.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.226250</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-18 04:00:44 UTC</td>
+      <td>Fcmobilebssiowl</td>
+      <td>Influencers getting shoes stuff and all and we are getting boots xp <br>Well done matiks</td>
+      <td>1.0</td>
+      <td>1.17.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-17 00:58:27 UTC</td>
+      <td>yashraj sharma</td>
+      <td>great game to play exercises mind so much but have some internet issues hope so they will be fixed in the next update</td>
+      <td>4.0</td>
+      <td>1.17.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.140000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Google Play</td>
+      <td>review</td>
+      <td>2026-01-16 18:45:32 UTC</td>
+      <td>Rashim Malhotra</td>
+      <td>A great app for people who want to improve themselves and test their math skills. I loved it</td>
+      <td>5.0</td>
+      <td>1.17.100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.750000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-16 14:22:45 UTC</td>
+      <td>Sahil Nikam</td>
+      <td>Too many ads</td>
+      <td>1.0</td>
+      <td>1.17.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.500000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-13 16:17:14 UTC</td>
+      <td>Jb-Deloitte</td>
+      <td>Installed the app after a video prompt. First impression: genuinely creative. Second impression: flooded with Tanmay and a lineup of post-COVID, algorithm-manufactured chapri creators. Deleted the app instantly. If you are actually great, stay far away from them.</td>
+      <td>1.0</td>
+      <td>1.17.100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.275000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-11 05:03:52 UTC</td>
+      <td>Dickeater01</td>
+      <td>Crazy how this app made me do maths.</td>
+      <td>5.0</td>
+      <td>1.16.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.300000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-11 03:29:47 UTC</td>
+      <td>@gb0820</td>
+      <td>Please bring back the race against clock unlimited variant.<br><br>I know nets are for that but the sheer randomness and no need for customisation deserves a comeback for us brainrot victims!!</td>
+      <td>5.0</td>
+      <td>1.16.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-10 15:58:09 UTC</td>
+      <td>NameNick001@</td>
+      <td>Interesting app with a solid idea and several good features.<br><br>I enjoyed it a lot during the first week, but over time the experience started to feel inconsistent. Some opponents play at a competitive level, while many others seem significantly weaker than their ratings, which makes matches less engaging. It also feels like a large proportion of games are against bots, likely due to a limited player base, and this reduces long-term interest.<br><br>Additionally, the app can occasionally become unresponsive, and in a competitive game this can affect match outcomes and be frustrating for players.<br><br>With improvements to matchmaking transparency, bot balancing, and overall responsiveness, this app has strong potential. I’d be happy to revisit it after these issues are addressed.</td>
+      <td>2.0</td>
+      <td>1.16.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.123160</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-10 13:20:56 UTC</td>
+      <td>Testinggg9</td>
+      <td>I would love if we have the capability to have bg music play while playing. Currently that stops that’s kinda bummer.<br><br><br>Plus please please please fix the visuals for 1 &amp; 7, my brain goes in a paralysis in figuring which is what.</td>
+      <td>4.0</td>
+      <td>1.16.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.250000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2026-01-08 15:23:25 UTC</td>
+      <td>Svgupta4</td>
+      <td>Hats off to the dev given alot of effort in it love the app.</td>
+      <td>5.0</td>
+      <td>1.16.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.500000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-12-29 20:56:59 UTC</td>
+      <td>CalligrapherWild8247</td>
+      <td>Have u heard about matiks<br>I'm tired of seeing those matiks ads everyday, so I downloaded to see what is it about , <br>Damn it is so good , <br>1min math duels are very addictive  , instant dopamine<br><br>After some research, i found out that founders are from IIT Guwahati 2022 batch <br>Damn , am I the only one who was living under a rock?</td>
+      <td></td>
+      <td></td>
+      <td>20</td>
+      <td>18</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.016667</td>
+      <td>https://reddit.com/r/iitg/comments/1pyxxcy/have_u_heard_about_matiks/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-12-27 17:16:34 UTC</td>
+      <td>Nacho Salamanca</td>
+      <td>LinkedIn, Instagram and what not — I've tried multiple platforms to connect with the customer support to get my account back but there has been no response at all. If by any chance the app people are reading this, I AM UNABLE TO LOGIN TO MY ACCOUNT THROUGH MY APPLE ID. Though you've already lost me as a loyal subscriber to the app, but if you still feel like helping it would be appreciated.</td>
+      <td>1.0</td>
+      <td>1.15.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.006667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-12-25 10:34:43 UTC</td>
+      <td>kritimathur99</td>
+      <td>Love the app, definitely the good kinda addiction</td>
+      <td>5.0</td>
+      <td>1.15.300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.400000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-12-08 16:09:31 UTC</td>
+      <td>Levi player1</td>
+      <td>Don’t know if it’s a bug or something else but I’m unable to login to the app even after multiple attempts.</td>
+      <td>1.0</td>
+      <td>1.14.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.250000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-12-01 19:41:21 UTC</td>
+      <td>Jsakshxm</td>
+      <td>This game has really increased cognitive response speed + it’s fun to play with your friends</td>
+      <td>5.0</td>
+      <td>1.14.100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.033333</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-23 13:14:32 UTC</td>
+      <td>K123Ritesh</td>
+      <td>Too much good</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.700000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-22 03:20:31 UTC</td>
+      <td>Dhayando</td>
+      <td>MG pro max</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-20 12:52:15 UTC</td>
+      <td>ZeroMors</td>
+      <td>Crazy app</td>
+      <td>4.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.300000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-19 14:44:51 UTC</td>
+      <td>Vb1710</td>
+      <td>The chunking strategy exercises have transformed how I remember information.</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-19 07:11:16 UTC</td>
+      <td>Hrshjh</td>
+      <td>IQ booster games</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-19 04:18:19 UTC</td>
+      <td>Dakshmalhotra</td>
+      <td>best brain game</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.300000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-18 14:52:38 UTC</td>
+      <td>Terridax1234</td>
+      <td>Gr8 initiative, excellent mind refreshing</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.750000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-18 13:30:43 UTC</td>
+      <td>HanikaS</td>
+      <td>I’m not a “math girl” at all, but Matiks has become my quick go-to before any important meeting. I play a one-minute duels, get a nice little dopamine boost, and my brain genuinely feels sharper and more focused after. It doesn’t feel like studying just fun, fast games that somehow make my brain perform better. Plus the app is minimal, clean and not kiddish, so I actually enjoy opening it every day.</td>
+      <td>5.0</td>
+      <td>1.14.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.309375</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-11-18 09:38:31 UTC</td>
+      <td>Haunting-Play2908</td>
+      <td>Finally gained Matiks rating 1600 after playing for so long!<br>i have been grinding matiks daily for past 6 months started it to just get better at math (left maths after 10th) and do something more productive than just doomscrolling. got addicted with leaderboard and rankings in game (i get a mad dopamine rush everytime i win) and after playing it daily for past 6 months finally got 1600+ rating!!!!! Feels so good man</td>
+      <td></td>
+      <td></td>
+      <td>369</td>
+      <td>34</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.534167</td>
+      <td>https://reddit.com/r/Indiangamers/comments/1p07p9i/finally_gained_matiks_rating_1600_after_playing/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-14 06:10:13 UTC</td>
+      <td>iLeicoW</td>
+      <td>Très sympa pour s’entraîner aux calculs mentaux, je recommande</td>
+      <td>5.0</td>
+      <td>1.13.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-11-06 07:06:01 UTC</td>
+      <td>Basilisk ALPHA</td>
+      <td>Just downloaded this app, had a bug or glitch occurring during changing my user name but the app is greatt</td>
+      <td>2.0</td>
+      <td>1.11.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-10-31 10:42:12 UTC</td>
+      <td>vsshal7</td>
+      <td>games to have a sharp brain. matiks &amp;amp; chess.com<br>I play both chess &amp;amp; matiks. What i feel is chess is pretty cool. just that it takes a lot of time and its hard to keep paying attention for such a long time. matiks is more casual, fast paced. Its like several bite sized dopamine hits (like that rush when you win or finish challenges). imo neither is a substitute for each other but i just want to flex that i can play games like these well,, i knock out both for the fun of it plus the dopamine rush once i win is just next level</td>
+      <td></td>
+      <td></td>
+      <td>592</td>
+      <td>39</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.640556</td>
+      <td>https://reddit.com/r/Indiangamers/comments/1okr5ru/games_to_have_a_sharp_brain_matiks_chesscom/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-10-18 22:18:37 UTC</td>
+      <td>YellowPurpleYellow</td>
+      <td>This game would be much more fun if it wasn't trying to boost engagement by having people only play against bots, so they feel like they are winning. I don't really mind if that means the queues take longer, or people arent in my exact elo range.<br><br>Also the ranked elo should give you more or less than normal when you first make an account, so it can find your skill level.<br><br>This game also feels like it does steal a lot of assets from duolingo and chess.com which could pose an issue if it becomes big enough.</td>
+      <td>1.0</td>
+      <td>1.11.200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.120238</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-10-06 09:12:43 UTC</td>
+      <td>vsshal7</td>
+      <td>Matiks bagged $3.1M in funding<br>matiks, gaming startup, bagged major funding lately. For context of those who dont know its about live math duels, multiplayer challenge, sort of like word hunt &amp;amp; chess meets maths. Was wondering with the real-money gaming facing bans lately, ofcourse games like this, like more skill games would arise. Good to see the shift in indian gaming landscape.</td>
+      <td></td>
+      <td></td>
+      <td>242</td>
+      <td>45</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.133144</td>
+      <td>https://reddit.com/r/Indiangamers/comments/1nze5m5/matiks_bagged_31m_in_funding/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-09-16 03:32:36 UTC</td>
+      <td>Adi_slay</td>
+      <td>Amazing amazing concept, clean af UI.. got me Hooked up like chesscom got me few years back</td>
+      <td>5.0</td>
+      <td>1.10.510</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.273333</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-09-08 15:27:04 UTC</td>
+      <td>AP_FCFE</td>
+      <td>I’ve tried a few apps, this one is the best one out there.</td>
+      <td>5.0</td>
+      <td>1.10.500</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.400000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-08-30 13:55:35 UTC</td>
+      <td>Chilly-777</td>
+      <td>my girlfriend keeps beating me in matiks duels<br>we used to play chess duels but she didn't know how to play chess well. we downloaded matiks together while ago &amp;amp; now she keeps beating me lol</td>
+      <td></td>
+      <td></td>
+      <td>399</td>
+      <td>55</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.800000</td>
+      <td>https://reddit.com/r/IndianGaming/comments/1n428n5/my_girlfriend_keeps_beating_me_in_matiks_duels/</td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-08-29 09:24:42 UTC</td>
+      <td>AccomplishedLie7719</td>
+      <td>Matiks sent me a cake lol, for 100 days streak!<br>So this post has been long pending as I've been waiting for the day I hit 100 days on Matiks. I was scrolling LinkedIn when I found the app, (drishtibution), but didn't really download it. However, someone posted a photo of them with cake for 100 day streak, and I was like, I want to do this 😂<br><br>In the last 107 days, I've seen this app change so much. I've followed them what they are doing, even used to send them feedbacks on the application. And yeah, it's been fun. My rating has been stable and haven't been able to increase it, but I still don't miss my streak. Fun to hai application. success of matiks feels personal <br><br>It's been nice abhi tak, really want to get something on the 200 streak now, maybe not a cake😂<br><br>PS: Matiks team if you're reading this, the old UI was better, new one is bad😭</td>
+      <td></td>
+      <td></td>
+      <td>7</td>
+      <td>2</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.285758</td>
+      <td>https://reddit.com/r/matiks/comments/1n32ofy/matiks_sent_me_a_cake_lol_for_100_days_streak/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-08-25 13:37:44 UTC</td>
+      <td>Sid3144</td>
+      <td>Losing a lot of competitions because the keyboard takes time to register keypresses. Please fix it.</td>
+      <td>3.0</td>
+      <td>1.10.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-08-17 13:18:39 UTC</td>
+      <td>Obvious-Fisherman998</td>
+      <td>Just hit a 21-day streak in the daily math duel game Matiks<br>Been playing Matiks consistently for the past 3 weeks. It’s a math puzzle game with quick duels and group challenges. I usually spend around 30–50 minutes a day on it, solid mix of fun and focus.<br><br>The streak feels nice to maintain, especially on those tougher puzzle days and daily challenges.<br>What’s your current streak?</td>
+      <td></td>
+      <td></td>
+      <td>263</td>
+      <td>27</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.014103</td>
+      <td>https://reddit.com/r/Indiangamers/comments/1msqpuh/just_hit_a_21day_streak_in_the_daily_math_duel/</td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-08-16 12:15:40 UTC</td>
+      <td>Solenoidics</td>
+      <td>Got so tired of seeing matiks on my twitter and finally gave it a try.<br>kept seeing matiks on my twitter for weeks and honestly was gonna mute them cause it was getting annoying. finally gave in and downloaded it just to see what the hype was about… and yeah i get it now. it’s like 1 min quick math duels with instant dopamine. I won a few games &amp;amp; started chasing higher rating.  now i’m one of those people flexing my rating too 💀</td>
+      <td></td>
+      <td></td>
+      <td>459</td>
+      <td>35</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>-0.024074</td>
+      <td>https://reddit.com/r/unitedstatesofindia/comments/1mrtki0/got_so_tired_of_seeing_matiks_on_my_twitter_and/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-08-15 16:10:33 UTC</td>
+      <td>A1997C</td>
+      <td>Amazing</td>
+      <td>5.0</td>
+      <td>1.10.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.600000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>social</td>
+      <td>2025-08-08 11:34:38 UTC</td>
+      <td>kuzuma-</td>
+      <td>From clash royale to matiks - upgrading my mobile gaming experience on a low-end device<br>used to play Clash royale and other casual games on my low-end Android 9 device, but they often heated up my phone or were unsupported. I switched to web-based games like Skribbl and Wordle, which worked okay, but I got bored. Then i discovered Matiks, and it's been a game changer. puzzles are engaging, the UX is great, and it's pretty competitive.  Plus, it runs smoothly on my device. anyone else replaced clash royale for something new?</td>
+      <td></td>
+      <td></td>
+      <td>238</td>
+      <td>35</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.096136</td>
+      <td>https://reddit.com/r/GadgetsIndia/comments/1mksrl4/from_clash_royale_to_matiks_upgrading_my_mobile/</td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-07-13 12:02:09 UTC</td>
+      <td>Ghising Bro</td>
+      <td>Too much of push notifications.</td>
+      <td>2.0</td>
+      <td>1.9.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.200000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-07-09 10:10:11 UTC</td>
+      <td>Sid6780</td>
+      <td>Loved it. Best app on app store, my 5 y/o son is getting good at maths</td>
+      <td>5.0</td>
+      <td>1.8.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.800000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-07-05 14:01:44 UTC</td>
+      <td>soodaryan</td>
+      <td>Honestly, this app is a hidden gem. Super clean UI, no clutter, just gets to the point. I’ve been using it for a bit now and it’s become part of my daily flow. I was literally the last person to ever be into doing maths in my fun time…. But after using Matiks for a while the puzzles are actually sooo interesting and addictive !! No bugs so far, and the updates actually improve the experience (rare these days). Keep it up, team this one’s solid!!!</td>
+      <td>5.0</td>
+      <td>1.8.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.166667</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-06-19 17:37:21 UTC</td>
+      <td>rishi,?</td>
+      <td>Please let me know how can i donate or contribute towards something to people who made this</td>
+      <td>5.0</td>
+      <td>1.8.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>0.000000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-06-05 08:31:10 UTC</td>
+      <td>theLuffy01</td>
+      <td>Great app to sharp your brain</td>
+      <td>5.0</td>
+      <td>1.8.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.337500</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-06-02 04:42:05 UTC</td>
+      <td>Kavita Jha</td>
+      <td>Lately I’ve been noticing that the screen goes white randomly, sometimes mid match, thus affecting my rating.</td>
+      <td>2.0</td>
+      <td>1.8.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.200000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-05-13 05:58:05 UTC</td>
+      <td>FR0_Y0</td>
+      <td>Only started playing a few weeks ago. I like how the game pushes you in a zone of focus once you’re in it. Looking forward to play more of it and often.</td>
+      <td>5.0</td>
+      <td>1.8.000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>neutral</td>
+      <td>-0.025000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-05-07 03:04:13 UTC</td>
+      <td>Rushi :)</td>
+      <td>This has been amazing. I’ve been using this over a week now and I highly recommend this to everyone out there.</td>
+      <td>5.0</td>
+      <td>1.7.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.380000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-04-29 05:22:19 UTC</td>
+      <td>Nikhil Tekwani</td>
+      <td>I never thought I’d say this, but I’m addicted to a maths app! Matiks has completely transformed how I feel about maths. It used to be something I avoided, but since switching to this app, I’ve actually started loving it. The way Matiks makes learning fun and interactive is incredible – it doesn’t feel like studying at all. Plus, the app’s UI is clean, smooth, and really enjoyable to use. If maths has ever felt boring or difficult to you, give Matiks a try — it might just change everything like it did for me.</td>
+      <td>5.0</td>
+      <td>1.7.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.106061</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-04-16 09:45:44 UTC</td>
+      <td>wheredoigetnewnickname</td>
+      <td>Never have I ever felt refreshed after using an app. Matiks is mental face wash (wth!?). Whatever. It has my 5 stars.</td>
+      <td>5.0</td>
+      <td>1.7.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.125000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-04-03 10:42:04 UTC</td>
+      <td>deepak.patil.10</td>
+      <td>Math doesn’t need to be just subject in school, this literally makes math fun for me, with the added benefit of keeping me cognitively sound.</td>
+      <td>5.0</td>
+      <td>Test</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.177778</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-04-01 12:56:15 UTC</td>
+      <td>killer4638</td>
+      <td>Amazing application to work on mental maths</td>
+      <td>5.0</td>
+      <td>Test</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.250000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-03-12 10:55:45 UTC</td>
+      <td>Vaarshik</td>
+      <td>A matiks game a day, keeps brain rot away</td>
+      <td>5.0</td>
+      <td>1.0.400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.300000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-03-10 13:50:40 UTC</td>
+      <td>Meyashsharma</td>
+      <td>UI is good but little complex and backend is slow that is very bad for new users submitting your answers taking more than 2-3 minutes even with a 300mbps connection.</td>
+      <td>2.0</td>
+      <td>1.0.352</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>negative</td>
+      <td>-0.051591</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2025-01-04 07:10:41 UTC</td>
+      <td>Samarth Saraswat</td>
+      <td>One of a kind app which keeps you mentally fit and helps you fight brain rot.</td>
+      <td>5.0</td>
+      <td>1.0.21</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.500000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2024-12-19 12:58:43 UTC</td>
+      <td>sofu.exe</td>
+      <td>Exactly what I needed to take my brain rot away</td>
+      <td>5.0</td>
+      <td>1.0.1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.750000</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2024-12-17 11:49:19 UTC</td>
+      <td>AB Satyaprakash</td>
+      <td>The best mental math app out there. Highly recommended</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.353333</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Apple App Store</td>
+      <td>review</td>
+      <td>2024-12-17 04:02:48 UTC</td>
+      <td>math.geeks</td>
+      <td>Best App for improving mental maths in a fun way</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>positive</td>
+      <td>0.400000</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+  </div>
 
-      const sectionSel = document.getElementById("section");
-      const platformMs = document.getElementById("platformMs");
-      const platformBtn = document.getElementById("platformBtn");
-      const platformPanel = document.getElementById("platformPanel");
-      const sentimentSel = document.getElementById("sentiment");
-      const startDateInp = document.getElementById("startDate");
-      const endDateInp = document.getElementById("endDate");
-      const qInp = document.getElementById("q");
-      const rowCount = document.getElementById("rowCount");
+  <script>
+    const table = document.getElementById("data");
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
 
-      function esc(s) {
-        return String(s || "").replace(
-          /[&<>"']/g,
-          (c) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[c],
-        );
+    const sectionSel = document.getElementById("section");
+    const platformMs = document.getElementById("platformMs");
+    const platformBtn = document.getElementById("platformBtn");
+    const platformPanel = document.getElementById("platformPanel");
+    const sentimentSel = document.getElementById("sentiment");
+    const startDateInp = document.getElementById("startDate");
+    const endDateInp = document.getElementById("endDate");
+    const qInp = document.getElementById("q");
+    const rowCount = document.getElementById("rowCount");
+
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      }[c]));
+    }
+
+    function checkboxId(value) {
+      return "p_" + String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    }
+
+    function addPlatformCheckbox(container, value) {
+      const id = checkboxId(value);
+      const label = document.createElement("label");
+      label.className = "check";
+      label.innerHTML = `<input type="checkbox" name="platform" value="${esc(value)}" id="${esc(id)}" /> <span>${esc(value)}</span>`;
+      container.appendChild(label);
+    }
+
+    // Collect platforms by section using the internal type column
+    const socialSet = new Set();
+    const appSet = new Set();
+    for (const r of rows) {
+      const platform = (r.cells[0]?.innerText || "").trim();
+      const typ = (r.cells[1]?.innerText || "").trim().toLowerCase();
+      if (!platform) continue;
+      if (typ === "review") appSet.add(platform);
+      else socialSet.add(platform);
+    }
+
+    function renderPlatformCheckboxes() {
+      const mode = sectionSel.value;
+      const items = (mode === "app" ? Array.from(appSet) : Array.from(socialSet)).sort();
+      selectedPlatforms = new Set();
+      platformPanel.innerHTML = "";
+
+      const actions = document.createElement("div");
+      actions.className = "ms-actions";
+      const btnAll = document.createElement("button");
+      btnAll.type = "button";
+      btnAll.className = "btn";
+      btnAll.textContent = "Select All";
+      const btnClear = document.createElement("button");
+      btnClear.type = "button";
+      btnClear.className = "btn";
+      btnClear.textContent = "Clear";
+      actions.appendChild(btnAll);
+      actions.appendChild(btnClear);
+      platformPanel.appendChild(actions);
+
+      function updateBtn() {
+        if (selectedPlatforms.size === 0) {
+          platformBtn.textContent = "All Platforms";
+          return;
+        }
+        const arr = Array.from(selectedPlatforms);
+        platformBtn.textContent = arr.length <= 2 ? arr.join(", ") : `${arr.length} Selected`;
       }
 
-      function checkboxId(value) {
-        return (
-          "p_" +
-          String(value || "")
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "_")
-            .replace(/^_+|_+$/g, "")
-        );
+      function renderList() {
+        const existing = platformPanel.querySelectorAll(".ms-opt");
+        existing.forEach((n) => n.remove());
+        for (const p of items) {
+          const opt = document.createElement("button");
+          opt.type = "button";
+          opt.className = "ms-opt" + (selectedPlatforms.has(p) ? " selected" : "");
+          opt.dataset.value = p;
+          opt.innerHTML = `<span class="mark">✓</span><span class="name">${esc(p)}</span>`;
+          opt.addEventListener("click", () => {
+            if (selectedPlatforms.has(p)) selectedPlatforms.delete(p);
+            else selectedPlatforms.add(p);
+            renderList();
+            updateBtn();
+            applyFilters();
+          });
+          platformPanel.appendChild(opt);
+        }
       }
 
-      function addPlatformCheckbox(container, value) {
-        const id = checkboxId(value);
-        const label = document.createElement("label");
-        label.className = "check";
-        label.innerHTML = `<input type="checkbox" name="platform" value="${esc(value)}" id="${esc(id)}" /> <span>${esc(value)}</span>`;
-        container.appendChild(label);
+      btnAll.addEventListener("click", () => {
+        selectedPlatforms = new Set(items);
+        renderList();
+        updateBtn();
+        applyFilters();
+      });
+      btnClear.addEventListener("click", () => {
+        selectedPlatforms = new Set();
+        renderList();
+        updateBtn();
+        applyFilters();
+      });
+
+      renderList();
+      updateBtn();
+    }
+
+    function selectedPlatformsSet() {
+      return new Set(selectedPlatforms);
+    }
+
+    // Render sentiment pills and normalize numeric displays
+    for (const r of rows) {
+      const labelCell = r.cells[10];
+      const label = (labelCell?.innerText || "").trim();
+      if (labelCell) {
+        let cls = "neu";
+        if (label === "positive") cls = "pos";
+        if (label === "negative") cls = "neg";
+        labelCell.innerHTML = label ? `<span class="pill ${cls}">${label}</span>` : "";
+      }
+    }
+
+    function setColVisible(idx, visible) {
+      const th = table.tHead?.rows?.[0]?.cells?.[idx];
+      if (th) th.style.display = visible ? "" : "none";
+      for (const r of rows) {
+        const td = r.cells[idx];
+        if (td) td.style.display = visible ? "" : "none";
+      }
+    }
+
+    function applySectionColumns() {
+      const mode = sectionSel.value;
+      // Hide internal and non-required columns
+      setColVisible(1, false);  // type
+      setColVisible(11, false); // sentiment_polarity
+
+      if (mode === "app") {
+        setColVisible(12, false);
+      } else {
+        setColVisible(12, true);
       }
 
-      // Collect platforms by section using the internal type column
-      const socialSet = new Set();
-      const appSet = new Set();
+      if (mode === "app") {
+        // App store view: show rating + app version, hide engagement metrics
+        setColVisible(5, true);
+        setColVisible(6, true);
+        setColVisible(7, false);
+        setColVisible(8, false);
+        setColVisible(9, false);
+      } else {
+        // Social view: show engagement metrics, hide rating + app version
+        setColVisible(5, false);
+        setColVisible(6, false);
+        setColVisible(7, true);
+        setColVisible(8, true);
+        setColVisible(9, true);
+      }
+    }
+
+    function parseYmd(s) {
+      const t = (s || "").trim();
+      if (!t) return null;
+      const m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return null;
+      return new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00Z`);
+    }
+
+    function rowTimestampUTC(row) {
+      const ts = (row.cells[2]?.innerText || "").trim();
+      // "YYYY-MM-DD HH:MM:SS UTC"
+      const m = ts.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2}) UTC$/);
+      if (!m) return null;
+      return new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`);
+    }
+
+    function applyFilters() {
+      const selectedPlatforms = selectedPlatformsSet();
+      const s = sentimentSel.value;
+      const q = (qInp.value || "").toLowerCase().trim();
+      const start = parseYmd(startDateInp.value);
+      const end = parseYmd(endDateInp.value);
+      const mode = sectionSel.value;
+
+      let visible = 0;
       for (const r of rows) {
         const platform = (r.cells[0]?.innerText || "").trim();
         const typ = (r.cells[1]?.innerText || "").trim().toLowerCase();
-        if (!platform) continue;
-        if (typ === "review") appSet.add(platform);
-        else socialSet.add(platform);
-      }
+        const author = (r.cells[3]?.innerText || "").toLowerCase();
+        const text = (r.cells[4]?.innerText || "").toLowerCase();
+        const url = (r.cells[12]?.innerText || "").toLowerCase();
+        const sentiment = (r.cells[10]?.innerText || "").trim();
+        const ts = rowTimestampUTC(r);
 
-      function renderPlatformCheckboxes() {
-        const mode = sectionSel.value;
-        const items = (
-          mode === "app" ? Array.from(appSet) : Array.from(socialSet)
-        ).sort();
-        selectedPlatforms = new Set();
-        platformPanel.innerHTML = "";
-
-        const actions = document.createElement("div");
-        actions.className = "ms-actions";
-        const btnAll = document.createElement("button");
-        btnAll.type = "button";
-        btnAll.className = "btn";
-        btnAll.textContent = "Select All";
-        const btnClear = document.createElement("button");
-        btnClear.type = "button";
-        btnClear.className = "btn";
-        btnClear.textContent = "Clear";
-        actions.appendChild(btnAll);
-        actions.appendChild(btnClear);
-        platformPanel.appendChild(actions);
-
-        function updateBtn() {
-          if (selectedPlatforms.size === 0) {
-            platformBtn.textContent = "All Platforms";
-            return;
-          }
-          const arr = Array.from(selectedPlatforms);
-          platformBtn.textContent =
-            arr.length <= 2 ? arr.join(", ") : `${arr.length} Selected`;
+        let ok = true;
+        if (mode === "app" && typ !== "review") ok = false;
+        if (mode === "social" && typ === "review") ok = false;
+        if (selectedPlatforms.size > 0 && !selectedPlatforms.has(platform)) ok = false;
+        if (s && sentiment.toLowerCase() !== s.toLowerCase()) ok = false;
+        if (q && !(author.includes(q) || text.includes(q) || url.includes(q))) ok = false;
+        if (start && ts && ts < start) ok = false;
+        if (end && ts) {
+          const endExclusive = new Date(end.getTime() + 24*60*60*1000);
+          if (ts >= endExclusive) ok = false;
         }
 
-        function renderList() {
-          const existing = platformPanel.querySelectorAll(".ms-opt");
-          existing.forEach((n) => n.remove());
-          for (const p of items) {
-            const opt = document.createElement("button");
-            opt.type = "button";
-            opt.className =
-              "ms-opt" + (selectedPlatforms.has(p) ? " selected" : "");
-            opt.dataset.value = p;
-            opt.innerHTML = `<span class="mark">✓</span><span class="name">${esc(p)}</span>`;
-            opt.addEventListener("click", () => {
-              if (selectedPlatforms.has(p)) selectedPlatforms.delete(p);
-              else selectedPlatforms.add(p);
-              renderList();
-              updateBtn();
-              applyFilters();
-            });
-            platformPanel.appendChild(opt);
-          }
-        }
-
-        btnAll.addEventListener("click", () => {
-          selectedPlatforms = new Set(items);
-          renderList();
-          updateBtn();
-          applyFilters();
-        });
-        btnClear.addEventListener("click", () => {
-          selectedPlatforms = new Set();
-          renderList();
-          updateBtn();
-          applyFilters();
-        });
-
-        renderList();
-        updateBtn();
+        r.style.display = ok ? "" : "none";
+        if (ok) visible++;
       }
+      rowCount.textContent = visible;
+    }
 
-      function selectedPlatformsSet() {
-        return new Set(selectedPlatforms);
-      }
-
-      // Render sentiment pills and normalize numeric displays
-      for (const r of rows) {
-        const labelCell = r.cells[10];
-        const label = (labelCell?.innerText || "").trim();
-        if (labelCell) {
-          let cls = "neu";
-          if (label === "positive") cls = "pos";
-          if (label === "negative") cls = "neg";
-          labelCell.innerHTML = label
-            ? `<span class="pill ${cls}">${label}</span>`
-            : "";
-        }
-      }
-
-      function setColVisible(idx, visible) {
-        const th = table.tHead?.rows?.[0]?.cells?.[idx];
-        if (th) th.style.display = visible ? "" : "none";
-        for (const r of rows) {
-          const td = r.cells[idx];
-          if (td) td.style.display = visible ? "" : "none";
-        }
-      }
-
-      function applySectionColumns() {
-        const mode = sectionSel.value;
-        // Hide internal and non-required columns
-        setColVisible(1, false); // type
-        setColVisible(11, false); // sentiment_polarity
-
-        if (mode === "app") {
-          setColVisible(12, false);
-        } else {
-          setColVisible(12, true);
-        }
-
-        if (mode === "app") {
-          // App store view: show rating + app version, hide engagement metrics
-          setColVisible(5, true);
-          setColVisible(6, true);
-          setColVisible(7, false);
-          setColVisible(8, false);
-          setColVisible(9, false);
-        } else {
-          // Social view: show engagement metrics, hide rating + app version
-          setColVisible(5, false);
-          setColVisible(6, false);
-          setColVisible(7, true);
-          setColVisible(8, true);
-          setColVisible(9, true);
-        }
-      }
-
-      function parseYmd(s) {
-        const t = (s || "").trim();
-        if (!t) return null;
-        const m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (!m) return null;
-        return new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00Z`);
-      }
-
-      function rowTimestampUTC(row) {
-        const ts = (row.cells[2]?.innerText || "").trim();
-        // "YYYY-MM-DD HH:MM:SS UTC"
-        const m = ts.match(
-          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2}) UTC$/,
-        );
-        if (!m) return null;
-        return new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`);
-      }
-
-      function applyFilters() {
-        const selectedPlatforms = selectedPlatformsSet();
-        const s = sentimentSel.value;
-        const q = (qInp.value || "").toLowerCase().trim();
-        const start = parseYmd(startDateInp.value);
-        const end = parseYmd(endDateInp.value);
-        const mode = sectionSel.value;
-
-        let visible = 0;
-        for (const r of rows) {
-          const platform = (r.cells[0]?.innerText || "").trim();
-          const typ = (r.cells[1]?.innerText || "").trim().toLowerCase();
-          const author = (r.cells[3]?.innerText || "").toLowerCase();
-          const text = (r.cells[4]?.innerText || "").toLowerCase();
-          const url = (r.cells[12]?.innerText || "").toLowerCase();
-          const sentiment = (r.cells[10]?.innerText || "").trim();
-          const ts = rowTimestampUTC(r);
-
-          let ok = true;
-          if (mode === "app" && typ !== "review") ok = false;
-          if (mode === "social" && typ === "review") ok = false;
-          if (selectedPlatforms.size > 0 && !selectedPlatforms.has(platform))
-            ok = false;
-          if (s && sentiment.toLowerCase() !== s.toLowerCase()) ok = false;
-          if (q && !(author.includes(q) || text.includes(q) || url.includes(q)))
-            ok = false;
-          if (start && ts && ts < start) ok = false;
-          if (end && ts) {
-            const endExclusive = new Date(end.getTime() + 24 * 60 * 60 * 1000);
-            if (ts >= endExclusive) ok = false;
-          }
-
-          r.style.display = ok ? "" : "none";
-          if (ok) visible++;
-        }
-        rowCount.textContent = visible;
-      }
-
-      sectionSel.addEventListener("change", () => {
-        renderPlatformCheckboxes();
-        applySectionColumns();
-        applyFilters();
-      });
-      sentimentSel.addEventListener("change", applyFilters);
-      startDateInp.addEventListener("input", applyFilters);
-      endDateInp.addEventListener("input", applyFilters);
-      qInp.addEventListener("input", applyFilters);
-
-      platformBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        platformMs.classList.toggle("open");
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!platformMs.contains(e.target)) platformMs.classList.remove("open");
-      });
-
-      let selectedPlatforms = new Set();
+    sectionSel.addEventListener("change", () => {
       renderPlatformCheckboxes();
       applySectionColumns();
-
-      // Convert URL text to clickable links
-      for (const r of rows) {
-        const urlCell = r.cells[12];
-        if (!urlCell) continue;
-        const raw = (urlCell.innerText || "").trim();
-        if (!raw) continue;
-        if (raw.startsWith("http://") || raw.startsWith("https://")) {
-          urlCell.innerHTML = `<a class="link" href="${esc(raw)}" target="_blank" rel="noopener noreferrer">Open</a>`;
-        }
-      }
-
-      // Debug: log sample rows for verification
-      console.log("Sample rows data:");
-      for (let i = 0; i < Math.min(3, rows.length); i++) {
-        const r = rows[i];
-        console.log({
-          platform: (r.cells[0]?.innerText || "").trim(),
-          type: (r.cells[1]?.innerText || "").trim(),
-          timestamp: (r.cells[2]?.innerText || "").trim(),
-          author: (r.cells[3]?.innerText || "").trim(),
-          text: (r.cells[4]?.innerText || "").trim().slice(0, 50),
-          sentiment: (r.cells[10]?.innerText || "").trim(),
-        });
-      }
-
       applyFilters();
-    </script>
-  </body>
+    });
+    sentimentSel.addEventListener("change", applyFilters);
+    startDateInp.addEventListener("input", applyFilters);
+    endDateInp.addEventListener("input", applyFilters);
+    qInp.addEventListener("input", applyFilters);
+
+    platformBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      platformMs.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!platformMs.contains(e.target)) platformMs.classList.remove("open");
+    });
+
+    let selectedPlatforms = new Set();
+    renderPlatformCheckboxes();
+    applySectionColumns();
+
+    // Convert URL text to clickable links
+    for (const r of rows) {
+      const urlCell = r.cells[12];
+      if (!urlCell) continue;
+      const raw = (urlCell.innerText || "").trim();
+      if (!raw) continue;
+      if (raw.startsWith("http://") || raw.startsWith("https://")) {
+        urlCell.innerHTML = `<a class="link" href="${esc(raw)}" target="_blank" rel="noopener noreferrer">Open</a>`;
+      }
+    }
+
+    // Debug: log sample rows for verification
+    console.log("Sample rows data:");
+    for (let i = 0; i < Math.min(3, rows.length); i++) {
+      const r = rows[i];
+      console.log({
+        platform: (r.cells[0]?.innerText || "").trim(),
+        type: (r.cells[1]?.innerText || "").trim(),
+        timestamp: (r.cells[2]?.innerText || "").trim(),
+        author: (r.cells[3]?.innerText || "").trim(),
+        text: (r.cells[4]?.innerText || "").trim().slice(0, 50),
+        sentiment: (r.cells[10]?.innerText || "").trim()
+      });
+    }
+
+    applyFilters();
+  </script>
+</body>
 </html>
