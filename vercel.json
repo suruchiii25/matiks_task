@@ -1,4 +1,40 @@
 {
   "version": 2,
-  "name": "matiks-monitor"
+  "name": "matiks-monitor",
+  "builds": [
+    {
+      "src": "output/**/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/output/dashboard.html"
+    },
+    {
+      "src": "/dashboard.html",
+      "dest": "/output/dashboard.html"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/output/$1"
+    }
+  ]
 }
