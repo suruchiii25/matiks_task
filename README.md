@@ -281,6 +281,6 @@ For questions or issues regarding this tool:
 
 ---
 
-**Developed by**: Sudhanshu for Matiks AI Generalist Intern Assignment  
+**Developed by**: Suruchi for Matiks AI Generalist Intern Assignment  
 **Date**: February 2026  
 **Version**: 1.0
