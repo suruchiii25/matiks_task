@@ -53,7 +53,9 @@ def analyze_text(text: str, *, neutral_threshold: float = 0.05) -> SentimentResu
         'crazy how this app', 'crazy how this', 'crazy this app',
         'finally gained', 'finally got', 'feels so good', 'dopamine rush',
         'mad dopamine', 'addicted with', 'leaderboard', 'rankings',
-        '1600 rating', '1600+ rating', 'rating!!!!!', 'feels good man'
+        '1600 rating', '1600+ rating', 'rating!!!!!', 'feels good man',
+        'highly recommend', 'completely changed', 'used to hate', 'now i do',
+        'mental math', '10-minute duels', 'daily practice'
     ]
     positive_context_count = sum(1 for ctx in positive_contexts if ctx in text_lower)
     
@@ -67,7 +69,8 @@ def analyze_text(text: str, *, neutral_threshold: float = 0.05) -> SentimentResu
         'feels so good', 'feels good', 'so good man',
         'dopamine rush', 'mad dopamine', 'addicted with',
         'leaderboard', 'rankings', 'rating!!!!!',
-        'grinding daily', 'daily for past', 'months finally'
+        'grinding daily', 'daily for past', 'months finally',
+        'used to hate', 'now i do', 'completely changed'
     ]
     if any(pattern in text_lower for pattern in achievement_patterns):
         positive_context_count += 1
